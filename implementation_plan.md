@@ -6,14 +6,16 @@ This plan breaks down the Ticket Management System into manageable phases, ensur
 * [x] **1.1 Initialization:** Initialize repositories for frontend (React/Vite) and backend (Bun).
 * [ ] **1.2 Dockerization:** Create `Dockerfile`s and `docker-compose.yml` to spin up PostgreSQL, Redis, Backend, and Frontend locally.
 * [x] **1.3 Database Schema:** Design and create Prisma models for auth (User, Session, Account).
-* [ ] **1.4 Base API Setup:** Setup global error handling, logging, and basic routing structure in the backend.
+* [x] **1.4 Base API Setup:** Setup global error handling, logging, and basic routing structure in the backend.
+* [x] **1.5 E2E Testing Foundation:** Set up Playwright with an isolated test database and automated migration/seeding.
 
 ## Phase 2: Authentication & User Management
 * [x] **2.1 Password Hashing:** Implemented securely via Better Auth.
 * [x] **2.2 Database Sessions:** Implemented using Better Auth Prisma adapter.
 * [x] **2.3 User Endpoints:** Configured Login, Logout, and User creation scripts.
 * [x] **2.4 RBAC Middleware:** Implemented Role-Based Access Control (`ProtectedRoute`) in frontend for Admins.
-* [ ] **2.5 Profile UI:** Build the user profile management pages on the frontend.
+* [x] **2.5 Auth Polish & Security:** UI enhancements (premium dark mode glassmorphism) and production rate limiting enabled.
+* [ ] **2.6 Profile UI:** Build the user profile management pages on the frontend.
 
 ## Phase 3: Core Ticket Management
 * **3.1 Ticket CRUD:** Develop APIs to Create, Read, Update, and Delete (Admin-only) tickets.

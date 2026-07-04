@@ -23,8 +23,13 @@ export default function Home() {
     return () => controller.abort();
   }, [])
   return (
-    <div className="flex flex-col min-h-screen text-center">
-      <section className="flex flex-col items-center justify-center gap-6 flex-grow py-12 px-5">
+    <div className="flex flex-col min-h-screen text-center bg-zinc-950 bg-grid-white relative overflow-hidden">
+      {/* Glowing atmospheric orb */}
+      <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full max-w-[1000px] h-[500px] opacity-20 pointer-events-none transform-gpu">
+        <div className="absolute inset-0 bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 blur-[120px] rounded-full transform -translate-y-1/2" />
+      </div>
+
+      <section className="relative z-10 flex flex-col items-center justify-center gap-6 flex-grow py-12 px-5">
         <div className="relative flex justify-center items-center h-48 w-full">
           <img src={heroImg} className="relative z-0 w-44" alt="" />
           <img src={reactLogo} className="absolute z-10 top-8 h-7 transform -rotate-12 scale-125 transition-transform hover:scale-150 duration-300" alt="React logo" />

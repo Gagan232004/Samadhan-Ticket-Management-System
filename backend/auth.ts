@@ -18,5 +18,8 @@ export const auth = betterAuth({
                 defaultValue: "agent"
             }
         }
+    },
+    rateLimit: {
+        enabled: process.env.NODE_ENV === "production"
     }
 });

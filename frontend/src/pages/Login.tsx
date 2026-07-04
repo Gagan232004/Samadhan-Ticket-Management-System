@@ -48,21 +48,21 @@ export default function Login() {
   };
 
   return (
-    <div className="relative flex min-h-[calc(100vh-80px)] items-center justify-center overflow-hidden bg-slate-50">
+    <div className="relative flex min-h-[calc(100vh-80px)] items-center justify-center overflow-hidden bg-zinc-950 bg-grid-white">
       {/* Static Background Gradients for better performance */}
-      <div className="absolute top-[-10%] left-[-5%] h-[600px] w-[600px] rounded-full bg-sky-200/50 blur-3xl transform-gpu" />
-      <div className="absolute bottom-[-10%] right-[-5%] h-[700px] w-[700px] rounded-full bg-blue-200/40 blur-3xl transform-gpu" />
+      <div className="absolute top-[-10%] left-[-5%] h-[600px] w-[600px] rounded-full bg-indigo-600/20 blur-[120px] transform-gpu pointer-events-none" />
+      <div className="absolute bottom-[-10%] right-[-5%] h-[700px] w-[700px] rounded-full bg-pink-600/10 blur-[120px] transform-gpu pointer-events-none" />
 
-      <Card className="relative z-10 w-full max-w-[440px] overflow-hidden rounded-3xl border border-white/60 bg-white/40 p-2 shadow-[0_8px_40px_-12px_rgba(14,165,233,0.15)] backdrop-blur-2xl transition-all duration-500 hover:shadow-[0_8px_40px_-12px_rgba(14,165,233,0.25)]">
-        <div className="rounded-2xl border border-white/50 bg-gradient-to-b from-white/80 to-white/40 p-8 shadow-sm">
+      <Card className="relative z-10 w-full max-w-[440px] overflow-hidden rounded-3xl border border-white/10 glass-panel p-2 transition-all duration-500 hover:shadow-[0_8px_40px_-12px_rgba(99,102,241,0.4)]">
+        <div className="rounded-2xl border border-white/5 bg-zinc-900/50 p-8 shadow-sm backdrop-blur-md">
           <CardHeader className="space-y-3 pb-8 pt-0 text-center">
-            <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-gradient-to-tr from-sky-400 to-blue-500 shadow-lg shadow-sky-500/30">
+            <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-gradient-to-tr from-indigo-500 to-purple-500 shadow-lg shadow-indigo-500/30">
               <Cloud className="h-7 w-7 text-white" />
             </div>
-            <CardTitle className="bg-gradient-to-br from-slate-700 to-slate-900 bg-clip-text text-3xl font-bold tracking-tight text-transparent">
+            <CardTitle className="text-3xl font-bold tracking-tight text-white">
               Welcome Back
             </CardTitle>
-            <CardDescription className="text-sm font-medium text-slate-500">
+            <CardDescription className="text-sm font-medium text-gray-400">
               Enter your credentials to access the portal
             </CardDescription>
           </CardHeader>
@@ -76,20 +76,20 @@ export default function Login() {
 
             <form onSubmit={handleSubmit(onSubmit)} noValidate className="space-y-5">
               <div className="space-y-2">
-                <Label htmlFor="email" className="text-xs font-bold uppercase tracking-wider text-slate-600 block text-left">
+                <Label htmlFor="email" className="text-xs font-bold uppercase tracking-wider text-gray-400 block text-left">
                   Email Address
                 </Label>
                 <div className="relative group">
                   <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
-                    <Mail className="h-5 w-5 text-slate-400 group-focus-within:text-sky-500 transition-colors" />
+                    <Mail className="h-5 w-5 text-gray-500 group-focus-within:text-indigo-400 transition-colors" />
                   </div>
                   <Input
                     id="email"
                     type="email"
                     {...register('email')}
                     placeholder="name@company.com"
-                    className={`h-12 w-full rounded-xl border-slate-200 bg-white/80 pl-11 text-slate-800 placeholder:text-slate-400 focus:border-sky-400 focus:bg-white focus:ring-4 focus:ring-sky-100 transition-all shadow-sm ${
-                      errors.email ? "border-red-300 focus:border-red-400 focus:ring-red-100" : ""
+                    className={`h-12 w-full rounded-xl border-white/10 bg-zinc-950/50 pl-11 text-white placeholder:text-gray-600 focus:border-indigo-500 focus:bg-zinc-900 focus:ring-1 focus:ring-indigo-500 transition-all shadow-inner ${
+                      errors.email ? "border-red-500/50 focus:border-red-500 focus:ring-red-500/20" : ""
                     }`}
                   />
                 </div>
@@ -102,24 +102,24 @@ export default function Login() {
               
               <div className="space-y-2">
                 <div className="flex items-center justify-between">
-                  <Label htmlFor="password" className="text-xs font-bold uppercase tracking-wider text-slate-600 block text-left">
+                  <Label htmlFor="password" className="text-xs font-bold uppercase tracking-wider text-gray-400 block text-left">
                     Password
                   </Label>
-                  <a href="#" className="text-xs font-semibold text-sky-500 hover:text-sky-600 transition-colors">
+                  <a href="#" className="text-xs font-semibold text-indigo-400 hover:text-indigo-300 transition-colors">
                     Forgot password?
                   </a>
                 </div>
                 <div className="relative group">
                   <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
-                    <Lock className="h-5 w-5 text-slate-400 group-focus-within:text-sky-500 transition-colors" />
+                    <Lock className="h-5 w-5 text-gray-500 group-focus-within:text-indigo-400 transition-colors" />
                   </div>
                   <Input
                     id="password"
                     type="password"
                     {...register('password')}
                     placeholder="••••••••"
-                    className={`h-12 w-full rounded-xl border-slate-200 bg-white/80 pl-11 text-slate-800 placeholder:text-slate-400 focus:border-sky-400 focus:bg-white focus:ring-4 focus:ring-sky-100 transition-all shadow-sm ${
-                      errors.password ? "border-red-300 focus:border-red-400 focus:ring-red-100" : ""
+                    className={`h-12 w-full rounded-xl border-white/10 bg-zinc-950/50 pl-11 text-white placeholder:text-gray-600 focus:border-indigo-500 focus:bg-zinc-900 focus:ring-1 focus:ring-indigo-500 transition-all shadow-inner ${
+                      errors.password ? "border-red-500/50 focus:border-red-500 focus:ring-red-500/20" : ""
                     }`}
                   />
                 </div>
@@ -133,7 +133,7 @@ export default function Login() {
               <Button
                 type="submit"
                 disabled={isSubmitting}
-                className="group relative mt-6 h-12 w-full overflow-hidden rounded-xl bg-gradient-to-r from-sky-400 to-blue-500 text-white font-bold text-[15px] shadow-md shadow-sky-500/20 transition-all hover:shadow-lg hover:shadow-sky-500/30 hover:scale-[1.02] active:scale-[0.98] disabled:opacity-70 disabled:hover:scale-100"
+                className="group relative mt-6 h-12 w-full overflow-hidden rounded-xl bg-gradient-to-r from-indigo-500 to-purple-500 text-white font-bold text-[15px] shadow-lg shadow-indigo-500/25 transition-all hover:shadow-indigo-500/40 hover:scale-[1.02] active:scale-[0.98] disabled:opacity-70 disabled:hover:scale-100"
               >
                 {isSubmitting ? (
                   <span className="flex items-center gap-2">
