@@ -1,8 +1,9 @@
 import express, { Request, Response, NextFunction } from 'express';
 import cors from 'cors';
 import dotenv from 'dotenv';
-import { toNodeHandler } from "better-auth/node";
+import { toNodeHandler, fromNodeHeaders } from "better-auth/node";
 import { auth } from "./auth.js";
+import { prisma } from "./db.js";
 dotenv.config();
 
 const app = express();
@@ -21,6 +22,34 @@ app.all(/^\/api\/auth(?:\/.*)?$/, toNodeHandler(auth.handler));
 // Basic Route
 app.get('/api/health', (req: Request, res: Response) => {
   res.json({ status: 'success', message: 'Express server is running on Bun!' });
+});
+
+// Users Route
+app.get('/api/users', async (req: Request, res: Response) => {
+  const session = await auth.api.getSession({
+    headers: fromNodeHeaders(req.headers)
+  });
+
+  if (!session || !session.user || session.user.role !== 'admin') {
+    res.status(403).json({ error: 'Forbidden' });
+    return;
+  }
+
+  const users = await prisma.user.findMany({
+    select: {
+      id: true,
+      name: true,
+      email: true,
+      role: true,
+      emailVerified: true,
+      createdAt: true
+    },
+    orderBy: {
+      createdAt: 'desc'
+    }
+  });
+
+  res.json(users);
 });
 
 // Global Error Handler
