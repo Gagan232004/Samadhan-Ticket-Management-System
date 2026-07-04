@@ -19,6 +19,16 @@ async function globalSetup() {
     },
     stdio: 'inherit'
   });
+
+  console.log('Seeding the test database...');
+  execSync('bun run seed.ts', {
+    cwd: path.resolve(__dirname, '../backend'),
+    env: {
+      ...process.env,
+      DATABASE_URL: process.env.DATABASE_URL
+    },
+    stdio: 'inherit'
+  });
 }
 
 export default globalSetup;

@@ -47,6 +47,8 @@ export default defineConfig({
       cwd: '../backend',
       url: 'http://localhost:5001/api/health',
       reuseExistingServer: !process.env.CI,
+      stdout: 'pipe',
+      stderr: 'pipe',
       env: {
         PORT: '5001',
         DATABASE_URL: process.env.DATABASE_URL as string,
@@ -58,6 +60,8 @@ export default defineConfig({
       cwd: '../frontend',
       url: 'http://localhost:5174',
       reuseExistingServer: !process.env.CI,
+      stdout: 'pipe',
+      stderr: 'pipe',
       env: {
         VITE_API_URL: 'http://localhost:5001'
       }
