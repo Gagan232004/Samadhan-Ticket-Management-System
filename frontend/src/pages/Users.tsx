@@ -1,6 +1,8 @@
-import { User, Mail, Calendar, Shield, Loader2, CheckCircle2, XCircle } from 'lucide-react';
+import { User, Mail, Calendar, Shield, CheckCircle2, XCircle, Plus } from 'lucide-react';
 import axios from 'axios';
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
+import { useState } from 'react';
+import { CreateUserModal } from '../components/CreateUserModal';
 
 interface UserData {
   id: string;
@@ -12,6 +14,9 @@ interface UserData {
 }
 
 export default function Users() {
+  const queryClient = useQueryClient();
+  const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
+
   const { data: users = [], isLoading: loading, error } = useQuery<UserData[], Error>({
     queryKey: ['users'],
     queryFn: async () => {
@@ -42,7 +47,23 @@ export default function Users() {
             Manage your team members and customer accounts
           </p>
         </div>
+        <button
+          onClick={() => setIsCreateModalOpen(true)}
+          className="flex items-center gap-2 px-5 py-2.5 bg-indigo-600 hover:bg-indigo-500 text-white font-semibold rounded-xl shadow-lg shadow-indigo-500/20 transition-all hover:scale-105 active:scale-95"
+        >
+          <Plus size={18} />
+          Create User
+        </button>
       </div>
+
+      <CreateUserModal
+        isOpen={isCreateModalOpen}
+        onClose={() => setIsCreateModalOpen(false)}
+        onSuccess={() => {
+          setIsCreateModalOpen(false);
+          queryClient.invalidateQueries({ queryKey: ['users'] });
+        }}
+      />
 
       <div className="bg-zinc-900/80 backdrop-blur-2xl border border-white/20 rounded-2xl p-1 overflow-hidden shadow-2xl relative">
         <div className="absolute inset-0 bg-gradient-to-br from-indigo-500/10 to-purple-500/10 pointer-events-none" />

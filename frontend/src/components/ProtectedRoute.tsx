@@ -24,7 +24,7 @@ export default function ProtectedRoute({
   }
 
   // Check if admin is required and user is not admin
-  if (requireAdmin && session.user.role !== 'admin') {
+  if (requireAdmin && (!session?.user || (session.user as any).role !== 'admin')) {
     return <Navigate to="/" replace />;
   }
 

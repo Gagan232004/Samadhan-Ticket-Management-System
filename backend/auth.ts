@@ -1,5 +1,6 @@
 import { betterAuth } from "better-auth";
 import { prismaAdapter } from "better-auth/adapters/prisma";
+import { admin } from "better-auth/plugins";
 import { prisma } from "./db.js";
 
 export const auth = betterAuth({
@@ -21,5 +22,8 @@ export const auth = betterAuth({
     },
     rateLimit: {
         enabled: process.env.NODE_ENV === "production"
-    }
+    },
+    plugins: [
+        admin()
+    ]
 });

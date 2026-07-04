@@ -30,7 +30,7 @@ export default function Navbar() {
             <Link to="/" className="text-white hover:text-indigo-300 font-semibold tracking-wide transition-colors">
               Home
             </Link>
-            {session.user.role === 'admin' && (
+            {(session.user as any).role === 'admin' && (
               <Link to="/users" className="text-white hover:text-indigo-300 font-semibold tracking-wide transition-colors">
                 Users
               </Link>

@@ -1,4 +1,5 @@
-import { render, screen, waitFor } from '@testing-library/react';
+import { render, screen, waitFor, fireEvent } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import Users from './Users';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
@@ -104,6 +105,49 @@ describe('Users Component', () => {
 
     await waitFor(() => {
       expect(screen.getByText('Forbidden: You do not have permission to view this.')).toBeInTheDocument();
+    });
+  });
+
+  describe('Create User Dialog Interactions', () => {
+    it('opens the dialog when "Add User" is clicked', async () => {
+      vi.mocked(axios.get).mockResolvedValueOnce({ data: [] });
+      renderWithClient(<Users />);
+      
+      const addButton = await screen.findByText('Create User');
+      await userEvent.click(addButton);
+      
+      expect(screen.getByText('Create New User')).toBeInTheDocument();
+    });
+
+    it('closes the dialog when ESC is pressed', async () => {
+      vi.mocked(axios.get).mockResolvedValueOnce({ data: [] });
+      renderWithClient(<Users />);
+      
+      const addButton = await screen.findByText('Create User');
+      await userEvent.click(addButton);
+      
+      expect(screen.getByText('Create New User')).toBeInTheDocument();
+      
+      // Press escape
+      fireEvent.keyDown(window, { key: 'Escape', code: 'Escape' });
+      
+      expect(screen.queryByText('Create New User')).not.toBeInTheDocument();
+    });
+
+    it('closes the dialog when clicking outside (on the backdrop)', async () => {
+      vi.mocked(axios.get).mockResolvedValueOnce({ data: [] });
+      renderWithClient(<Users />);
+      
+      const addButton = await screen.findByText('Create User');
+      await userEvent.click(addButton);
+      
+      expect(screen.getByText('Create New User')).toBeInTheDocument();
+      
+      // Click the backdrop (we added data-testid="modal-backdrop" to it)
+      const backdrop = screen.getByTestId('modal-backdrop');
+      await userEvent.click(backdrop);
+      
+      expect(screen.queryByText('Create New User')).not.toBeInTheDocument();
     });
   });
 });

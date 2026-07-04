@@ -4,6 +4,8 @@ import dotenv from 'dotenv';
 import { toNodeHandler, fromNodeHeaders } from "better-auth/node";
 import { auth } from "./auth.js";
 import { prisma } from "./db.js";
+import { createUserSchema } from '@ticketly/core';
+
 dotenv.config();
 
 const app = express();
@@ -61,4 +63,5 @@ app.use((err: any, req: Request, res: Response, next: NextFunction) => {
 // Start Server
 app.listen(PORT, () => {
   console.log(`🚀 Server is running on http://localhost:${PORT}`);
+  console.log(`📦 Shared core schema loaded successfully:`, !!createUserSchema);
 });
