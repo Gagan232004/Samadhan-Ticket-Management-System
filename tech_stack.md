@@ -44,3 +44,11 @@ Based on the core features, this project utilizes a modern, scalable tech stack 
 * **Production Deployment:**
   * Containers can be deployed to a cloud provider using **Docker Swarm**, **Kubernetes**, or managed container services like **AWS ECS** / **DigitalOcean App Platform**.
   * **Nginx** or **Traefik** acting as a reverse proxy and load balancer in front of the Docker containers.
+
+## 8. Testing
+* **End-to-End (E2E):** **Playwright**
+  * *Execution:* Run `npx playwright test` inside the `/e2e` directory.
+  * *Structure:* Strictly follow the Page Object Model (POM). Store page locators in `/e2e/pages` and spec files in `/e2e/tests`.
+* **Component Testing (Frontend):** **Vitest + React Testing Library**
+  * *Execution:* Run `bun run test` (single run) or `bun run test:watch` (watch mode) inside the `/frontend` directory.
+  * *Guidelines:* Isolate components by mocking `axios` API calls using `vi.mock('axios')`. For components using TanStack Query, wrap them in a freshly instantiated `QueryClientProvider` with retries explicitly disabled in the test setup. Place test files alongside their components (e.g., `Users.test.tsx`).
