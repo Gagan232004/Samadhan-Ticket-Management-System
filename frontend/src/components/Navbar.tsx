@@ -17,78 +17,35 @@ export default function Navbar() {
   };
 
   return (
-    <nav style={{
-      display: 'flex',
-      justifyContent: 'space-between',
-      alignItems: 'center',
-      padding: '1rem 2rem',
-      backgroundColor: 'rgba(255, 255, 255, 0.05)',
-      backdropFilter: 'blur(10px)',
-      borderBottom: '1px solid rgba(255, 255, 255, 0.1)',
-      position: 'sticky',
-      top: 0,
-      zIndex: 100,
-    }}>
-      <Link to="/" style={{
-        fontSize: '1.5rem',
-        fontWeight: 'bold',
-        textDecoration: 'none',
-        color: '#fff',
-        background: 'linear-gradient(90deg, #646cff, #a64d79)',
-        WebkitBackgroundClip: 'text',
-        WebkitTextFillColor: 'transparent',
-      }}>
+    <nav className="sticky top-0 z-50 flex items-center justify-between px-8 py-4 bg-white/5 backdrop-blur-md border-b border-white/10">
+      <Link to="/" className="text-2xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-indigo-500 to-pink-500 hover:opacity-90 transition-opacity">
         Ticketly
       </Link>
       
-      <div style={{ display: 'flex', alignItems: 'center', gap: '1.5rem' }}>
+      <div className="flex items-center gap-6">
         {isPending ? (
-          <div style={{ width: '20px', height: '20px', borderRadius: '50%', border: '2px solid #646cff', borderTopColor: 'transparent', animation: 'spin 1s linear infinite' }} />
+          <div className="w-5 h-5 rounded-full border-2 border-indigo-500 border-t-transparent animate-spin" />
         ) : session?.user ? (
           <>
-            <span style={{ color: '#e0e0e0', fontWeight: 500 }}>
+            <span className="text-gray-200 font-medium">
               Hello, {session.user.name}
             </span>
             <button 
               onClick={handleSignOut}
-              style={{
-                backgroundColor: '#ef4444',
-                color: 'white',
-                border: 'none',
-                padding: '0.5rem 1rem',
-                borderRadius: '6px',
-                fontWeight: 600,
-                cursor: 'pointer',
-                transition: 'background-color 0.2s',
-              }}
-              onMouseOver={(e) => e.currentTarget.style.backgroundColor = '#dc2626'}
-              onMouseOut={(e) => e.currentTarget.style.backgroundColor = '#ef4444'}
+              className="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-md font-semibold transition-colors duration-200"
             >
               Sign Out
             </button>
           </>
         ) : (
-          <Link to="/login" style={{
-            backgroundColor: '#646cff',
-            color: 'white',
-            textDecoration: 'none',
-            padding: '0.5rem 1.25rem',
-            borderRadius: '6px',
-            fontWeight: 600,
-            transition: 'background-color 0.2s',
-          }}
-          onMouseOver={(e) => e.currentTarget.style.backgroundColor = '#535bf2'}
-          onMouseOut={(e) => e.currentTarget.style.backgroundColor = '#646cff'}
+          <Link 
+            to="/login" 
+            className="bg-indigo-600 hover:bg-indigo-500 text-white px-5 py-2 rounded-md font-semibold transition-colors duration-200"
           >
             Login
           </Link>
         )}
       </div>
-      <style>{`
-        @keyframes spin {
-          to { transform: rotate(360deg); }
-        }
-      `}</style>
     </nav>
   );
 }

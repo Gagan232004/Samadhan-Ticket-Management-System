@@ -15,83 +15,92 @@ export default function Home() {
   }, [])
 
   return (
-    <>
-      <section id="center">
-        <div className="hero">
-          <img src={heroImg} className="base" width="170" height="179" alt="" />
-          <img src={reactLogo} className="framework" alt="React logo" />
-          <img src={viteLogo} className="vite" alt="Vite logo" />
+    <div className="flex flex-col min-h-screen text-center">
+      <section className="flex flex-col items-center justify-center gap-6 flex-grow py-12 px-5">
+        <div className="relative flex justify-center items-center h-48 w-full">
+          <img src={heroImg} className="relative z-0 w-44" alt="" />
+          <img src={reactLogo} className="absolute z-10 top-8 h-7 transform -rotate-12 scale-125 transition-transform hover:scale-150 duration-300" alt="React logo" />
+          <img src={viteLogo} className="absolute z-0 top-24 h-6 transform rotate-12 scale-90 transition-transform hover:scale-110 duration-300" alt="Vite logo" />
         </div>
+        
         <div>
-          <h1>Get started</h1>
-          <p style={{ padding: '1rem', background: '#242424', color: '#646cff', borderRadius: '8px', border: '1px solid #646cff' }}>
-            <strong>Backend Status:</strong> {healthMessage}
+          <h1 className="text-4xl md:text-6xl font-bold tracking-tight mb-8">Get started</h1>
+          <p className="p-4 bg-zinc-900 text-indigo-400 rounded-lg border border-indigo-500 mb-6 max-w-md mx-auto">
+            <strong className="text-white">Backend Status:</strong> {healthMessage}
           </p>
-          <p>
-            Edit <code>src/pages/Home.tsx</code> and save to test <code>HMR</code>
+          <p className="text-lg text-gray-400">
+            Edit <code className="font-mono text-sm bg-zinc-900 text-gray-200 px-2 py-1 rounded">src/pages/Home.tsx</code> and save to test <code className="font-mono text-sm bg-zinc-900 text-gray-200 px-2 py-1 rounded">HMR</code>
           </p>
         </div>
+        
         <button
           type="button"
-          className="counter"
+          className="mt-6 bg-indigo-500/10 text-indigo-400 border-2 border-transparent hover:border-indigo-500/50 px-6 py-3 rounded-lg font-medium transition-colors duration-300 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 focus:ring-offset-zinc-950"
           onClick={() => setCount((count) => count + 1)}
         >
           Count is {count}
         </button>
       </section>
 
-      <div className="ticks"></div>
+      {/* Decorative divider line */}
+      <div className="w-full h-px bg-white/10 relative">
+        <div className="absolute -top-1 left-0 border-[5px] border-transparent border-l-white/10"></div>
+        <div className="absolute -top-1 right-0 border-[5px] border-transparent border-r-white/10"></div>
+      </div>
 
-      <section id="next-steps">
-        <div id="docs">
-          <svg className="icon" role="presentation" aria-hidden="true">
-            <use href="/icons.svg#documentation-icon"></use>
+      <section className="flex flex-col md:flex-row text-left max-w-6xl mx-auto w-full">
+        <div className="flex-1 p-8 md:p-12 md:border-r border-white/10 border-b md:border-b-0">
+          <svg className="w-6 h-6 mb-4 text-indigo-400" role="presentation" aria-hidden="true" fill="currentColor" viewBox="0 0 24 24">
+             <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/>
           </svg>
-          <h2>Documentation</h2>
-          <p>Your questions, answered</p>
-          <ul>
+          <h2 className="text-2xl font-semibold mb-2 text-white">Documentation</h2>
+          <p className="text-gray-400 mb-8">Your questions, answered</p>
+          
+          <ul className="flex flex-wrap gap-3">
             <li>
-              <a href="https://vite.dev/" target="_blank">
-                <img className="logo" src={viteLogo} alt="" />
+              <a href="https://vite.dev/" target="_blank" rel="noreferrer" className="flex items-center gap-2 px-4 py-2 bg-zinc-900 rounded-md hover:bg-zinc-800 transition-colors shadow-sm">
+                <img className="h-4" src={viteLogo} alt="" />
                 Explore Vite
               </a>
             </li>
             <li>
-              <a href="https://react.dev/" target="_blank">
-                <img className="button-icon" src={reactLogo} alt="" />
+              <a href="https://react.dev/" target="_blank" rel="noreferrer" className="flex items-center gap-2 px-4 py-2 bg-zinc-900 rounded-md hover:bg-zinc-800 transition-colors shadow-sm">
+                <img className="h-4" src={reactLogo} alt="" />
                 Learn more
               </a>
             </li>
           </ul>
         </div>
-        <div id="social">
-          <svg className="icon" role="presentation" aria-hidden="true">
-            <use href="/icons.svg#social-icon"></use>
+        
+        <div className="flex-1 p-8 md:p-12">
+          <svg className="w-6 h-6 mb-4 text-indigo-400" role="presentation" aria-hidden="true" fill="currentColor" viewBox="0 0 24 24">
+            <path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/>
           </svg>
-          <h2>Connect with us</h2>
-          <p>Join the Vite community</p>
-          <ul>
+          <h2 className="text-2xl font-semibold mb-2 text-white">Connect with us</h2>
+          <p className="text-gray-400 mb-8">Join the Vite community</p>
+          
+          <ul className="flex flex-wrap gap-3">
             <li>
-              <a href="https://github.com/vitejs/vite" target="_blank">
-                <svg className="button-icon" role="presentation" aria-hidden="true">
-                  <use href="/icons.svg#github-icon"></use>
-                </svg>
+              <a href="https://github.com/vitejs/vite" target="_blank" rel="noreferrer" className="flex items-center gap-2 px-4 py-2 bg-zinc-900 rounded-md hover:bg-zinc-800 transition-colors shadow-sm">
                 GitHub
               </a>
             </li>
             <li>
-              <a href="https://chat.vite.dev/" target="_blank">
-                <svg className="button-icon" role="presentation" aria-hidden="true">
-                  <use href="/icons.svg#discord-icon"></use>
-                </svg>
+              <a href="https://chat.vite.dev/" target="_blank" rel="noreferrer" className="flex items-center gap-2 px-4 py-2 bg-zinc-900 rounded-md hover:bg-zinc-800 transition-colors shadow-sm">
                 Discord
               </a>
             </li>
           </ul>
         </div>
       </section>
-      <div className="ticks"></div>
-      <section id="spacer"></section>
-    </>
+
+      {/* Decorative divider line */}
+      <div className="w-full h-px bg-white/10 relative">
+        <div className="absolute -top-1 left-0 border-[5px] border-transparent border-l-white/10"></div>
+        <div className="absolute -top-1 right-0 border-[5px] border-transparent border-r-white/10"></div>
+      </div>
+      
+      <section className="h-24 md:h-12"></section>
+    </div>
   )
 }
