@@ -3,17 +3,17 @@
 This plan breaks down the Ticket Management System into manageable phases, ensuring a logical progression from foundational architecture to advanced AI features.
 
 ## Phase 1: Project Setup & Foundation
-* **1.1 Initialization:** Initialize Git repositories for frontend (Next.js) and backend (NestJS/Express).
-* **1.2 Dockerization:** Create `Dockerfile`s and `docker-compose.yml` to spin up PostgreSQL, Redis, Backend, and Frontend locally.
-* **1.3 Database Schema:** Design and create Prisma/TypeORM models for `User`, `Session`, `Ticket`, `Category`, `Tag`.
-* **1.4 Base API Setup:** Setup global error handling, logging, and basic routing structure in the backend.
+* [x] **1.1 Initialization:** Initialize repositories for frontend (React/Vite) and backend (Bun).
+* [ ] **1.2 Dockerization:** Create `Dockerfile`s and `docker-compose.yml` to spin up PostgreSQL, Redis, Backend, and Frontend locally.
+* [x] **1.3 Database Schema:** Design and create Prisma models for auth (User, Session, Account).
+* [ ] **1.4 Base API Setup:** Setup global error handling, logging, and basic routing structure in the backend.
 
 ## Phase 2: Authentication & User Management
-* **2.1 Password Hashing:** Implement bcrypt/argon2 for secure password storage.
-* **2.2 Database Sessions:** Build the authentication flow using Redis to store session IDs and return HTTP-only cookies.
-* **2.3 User Endpoints:** Create Registration, Login, Logout, and Password Reset APIs.
-* **2.4 RBAC Middleware:** Implement Role-Based Access Control guards (Admin, Agent, Customer) to protect specific API routes.
-* **2.5 Profile UI:** Build the user profile management pages on the frontend.
+* [x] **2.1 Password Hashing:** Implemented securely via Better Auth.
+* [x] **2.2 Database Sessions:** Implemented using Better Auth Prisma adapter.
+* [x] **2.3 User Endpoints:** Configured Login, Logout, and User creation scripts.
+* [x] **2.4 RBAC Middleware:** Implemented Role-Based Access Control (`ProtectedRoute`) in frontend for Admins.
+* [ ] **2.5 Profile UI:** Build the user profile management pages on the frontend.
 
 ## Phase 3: Core Ticket Management
 * **3.1 Ticket CRUD:** Develop APIs to Create, Read, Update, and Delete (Admin-only) tickets.
