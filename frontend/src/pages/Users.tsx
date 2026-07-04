@@ -1,5 +1,6 @@
-import { useEffect, useState } from 'react';
 import { User, Mail, Calendar, Shield, Loader2, CheckCircle2, XCircle } from 'lucide-react';
+import axios from 'axios';
+import { useQuery } from '@tanstack/react-query';
 
 interface UserData {
   id: string;
@@ -11,35 +12,23 @@ interface UserData {
 }
 
 export default function Users() {
-  const [users, setUsers] = useState<UserData[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState('');
-
-  useEffect(() => {
-    const fetchUsers = async () => {
+  const { data: users = [], isLoading: loading, error } = useQuery<UserData[], Error>({
+    queryKey: ['users'],
+    queryFn: async () => {
       try {
-        const apiUrl = import.meta.env.VITE_API_URL || "http://localhost:5001";
-        const res = await fetch(`${apiUrl}/api/users`, {
-          method: 'GET',
-          credentials: 'include', // Important to send cookies containing better-auth session
+        const apiUrl = import.meta.env.VITE_API_URL || "http://localhost:5000";
+        const res = await axios.get(`${apiUrl}/api/users`, {
+          withCredentials: true,
         });
-        
-        if (!res.ok) {
-           if (res.status === 403) throw new Error("Forbidden: You do not have permission to view this.");
-           throw new Error("Failed to fetch users");
-        }
-        
-        const data = await res.json();
-        setUsers(data);
+        return res.data;
       } catch (err: any) {
-        setError(err.message || 'An error occurred while fetching users');
-      } finally {
-        setLoading(false);
+        if (err.response?.status === 403) {
+          throw new Error("Forbidden: You do not have permission to view this.");
+        }
+        throw new Error(err.response?.data?.error || err.message || 'An error occurred while fetching users');
       }
-    };
-
-    fetchUsers();
-  }, []);
+    }
+  });
 
   return (
     <div className="flex flex-col p-8 max-w-7xl mx-auto w-full min-h-[calc(100vh-4rem)] animate-in fade-in slide-in-from-bottom-4 duration-700 ease-out">
@@ -81,7 +70,7 @@ export default function Users() {
                 <tr>
                   <td colSpan={5} className="px-6 py-12 text-center">
                     <div className="inline-flex items-center justify-center p-4 rounded-xl bg-red-500/20 border border-red-500/40 text-red-300 font-bold text-lg shadow-lg">
-                      {error}
+                      {error.message}
                     </div>
                   </td>
                 </tr>

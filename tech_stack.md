@@ -7,6 +7,7 @@ Based on the core features, this project utilizes a modern, scalable tech stack 
   * *Why:* Next.js is excellent for building both the highly interactive Agent Dashboard (Client-side rendering) and the SEO-friendly Knowledge Base (Server-side rendering). 
 * **Styling:** **Tailwind CSS** combined with a component library like **shadcn/ui** or **MUI** for rapid, clean, and accessible UI development.
 * **State Management:** **Zustand** or **Redux Toolkit** for managing complex state (ticket filters, ongoing chats, user sessions).
+* **Data Fetching:** **TanStack Query (React Query)** and **Axios**. *Rule: Always use React Query and Axios for all API calls. Do not use native fetch or bare useEffects for fetching.*
 * **Widget:** Vanilla JS or a lightweight React bundle (preact) to embed the support widget on external sites.
 
 ## 2. Backend (API & Business Logic)
