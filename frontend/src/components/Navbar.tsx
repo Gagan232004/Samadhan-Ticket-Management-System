@@ -27,6 +27,9 @@ export default function Navbar() {
           <div className="w-5 h-5 rounded-full border-2 border-indigo-400 border-t-transparent animate-spin shadow-lg" />
         ) : session?.user ? (
           <>
+            <Link to="/" className="text-white hover:text-indigo-300 font-semibold tracking-wide transition-colors">
+              Home
+            </Link>
             {session.user.role === 'admin' && (
               <Link to="/users" className="text-white hover:text-indigo-300 font-semibold tracking-wide transition-colors">
                 Users

@@ -34,9 +34,6 @@ test.describe('Users Management System', () => {
     // Verify the table is visible
     await expect(usersPage.table).toBeVisible();
     
-    // Wait for the loading row to disappear
-    await expect(page.getByText('Loading users...')).toBeHidden({ timeout: 10000 });
-    
     // Check that the admin user row is visible in the list
     const adminRow = usersPage.tableRows.filter({ hasText: email });
     await expect(adminRow).toBeVisible();

@@ -60,12 +60,31 @@ export default function Users() {
             </thead>
             <tbody className="divide-y divide-white/10">
               {loading ? (
-                <tr>
-                  <td colSpan={5} className="px-6 py-12 text-center">
-                    <Loader2 className="animate-spin w-8 h-8 mx-auto text-indigo-400 mb-4" />
-                    <span className="text-zinc-200 font-medium text-lg">Loading users...</span>
-                  </td>
-                </tr>
+                Array.from({ length: 5 }).map((_, i) => (
+                  <tr key={`skeleton-${i}`} className="animate-pulse border-b border-white/5 last:border-0">
+                    <td className="px-6 py-5">
+                      <div className="flex items-center gap-4">
+                        <div className="w-12 h-12 rounded-full bg-white/10"></div>
+                        <div className="h-5 w-32 bg-white/10 rounded"></div>
+                      </div>
+                    </td>
+                    <td className="px-6 py-5">
+                      <div className="h-4 w-48 bg-white/10 rounded"></div>
+                    </td>
+                    <td className="px-6 py-5">
+                      <div className="h-6 w-16 bg-white/10 rounded-full"></div>
+                    </td>
+                    <td className="px-6 py-5">
+                      <div className="flex items-center gap-2">
+                        <div className="w-4 h-4 rounded-full bg-white/10"></div>
+                        <div className="h-4 w-20 bg-white/10 rounded"></div>
+                      </div>
+                    </td>
+                    <td className="px-6 py-5">
+                      <div className="h-4 w-28 bg-white/10 rounded"></div>
+                    </td>
+                  </tr>
+                ))
               ) : error ? (
                 <tr>
                   <td colSpan={5} className="px-6 py-12 text-center">
