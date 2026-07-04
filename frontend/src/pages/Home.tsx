@@ -8,12 +8,20 @@ export default function Home() {
   const [healthMessage, setHealthMessage] = useState<string>('Checking backend status...')
 
   useEffect(() => {
-    fetch('http://localhost:5000/api/health')
+    const controller = new AbortController();
+    const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:5000';
+    
+    fetch(`${apiUrl}/api/health`, { signal: controller.signal })
       .then(res => res.json())
       .then(data => setHealthMessage(data.message))
-      .catch(err => setHealthMessage('Failed to connect to backend: ' + err.message))
-  }, [])
+      .catch(err => {
+        if (err.name !== 'AbortError') {
+          setHealthMessage('Failed to connect to backend: ' + err.message);
+        }
+      });
 
+    return () => controller.abort();
+  }, [])
   return (
     <div className="flex flex-col min-h-screen text-center">
       <section className="flex flex-col items-center justify-center gap-6 flex-grow py-12 px-5">

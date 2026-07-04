@@ -1,4 +1,4 @@
-import express, { Request, Response } from 'express';
+import express, { Request, Response, NextFunction } from 'express';
 import cors from 'cors';
 import dotenv from 'dotenv';
 import { toNodeHandler } from "better-auth/node";
@@ -21,6 +21,12 @@ app.all(/^\/api\/auth(?:\/.*)?$/, toNodeHandler(auth.handler));
 // Basic Route
 app.get('/api/health', (req: Request, res: Response) => {
   res.json({ status: 'success', message: 'Express server is running on Bun!' });
+});
+
+// Global Error Handler
+app.use((err: any, req: Request, res: Response, next: NextFunction) => {
+  console.error(err.stack);
+  res.status(500).json({ error: 'Internal Server Error' });
 });
 
 // Start Server

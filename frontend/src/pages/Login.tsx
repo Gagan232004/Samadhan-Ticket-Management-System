@@ -49,9 +49,9 @@ export default function Login() {
 
   return (
     <div className="relative flex min-h-[calc(100vh-80px)] items-center justify-center overflow-hidden bg-slate-50">
-      {/* Dynamic Background Gradients */}
-      <div className="absolute top-[-10%] left-[-5%] h-[600px] w-[600px] rounded-full bg-sky-200/50 blur-[120px] animate-pulse-slow" />
-      <div className="absolute bottom-[-10%] right-[-5%] h-[700px] w-[700px] rounded-full bg-blue-200/40 blur-[150px] animate-pulse-slow" style={{ animationDelay: '2s' }} />
+      {/* Static Background Gradients for better performance */}
+      <div className="absolute top-[-10%] left-[-5%] h-[600px] w-[600px] rounded-full bg-sky-200/50 blur-3xl transform-gpu" />
+      <div className="absolute bottom-[-10%] right-[-5%] h-[700px] w-[700px] rounded-full bg-blue-200/40 blur-3xl transform-gpu" />
 
       <Card className="relative z-10 w-full max-w-[440px] overflow-hidden rounded-3xl border border-white/60 bg-white/40 p-2 shadow-[0_8px_40px_-12px_rgba(14,165,233,0.15)] backdrop-blur-2xl transition-all duration-500 hover:shadow-[0_8px_40px_-12px_rgba(14,165,233,0.25)]">
         <div className="rounded-2xl border border-white/50 bg-gradient-to-b from-white/80 to-white/40 p-8 shadow-sm">

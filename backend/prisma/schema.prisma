@@ -7,11 +7,6 @@ generator client {
   provider = "prisma-client-js"
 }
 
-enum Role {
-  admin
-  agent
-}
-
 datasource db {
   provider = "postgresql"
 }
@@ -24,7 +19,7 @@ model User {
   image         String?
   createdAt     DateTime
   updatedAt     DateTime
-  role          Role      @default(agent)
+  role          String    @default("agent")
   sessions      Session[]
   accounts      Account[]
 
