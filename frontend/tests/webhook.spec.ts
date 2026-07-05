@@ -7,7 +7,7 @@ test.describe('Webhook Ticket Ingestion', () => {
     body: `This is an automated E2E test body for ticket ${uniqueId}.`,
     customerName: `Webhook User ${uniqueId}`,
     customerEmail: `webhook${uniqueId}@example.com`,
-    category: 'General Questions'
+    category: 'General_Questions'
   };
 
   test('should create a ticket via webhook and display it in the UI', async ({ page, request }) => {

@@ -6,8 +6,8 @@ export interface Ticket {
   id: string;
   subject: string;
   body: string;
-  status: string;
-  category: string;
+  status: 'Open' | 'Closed' | 'Resolved';
+  category: 'General_Questions' | 'Technical_Questions' | 'Refund_Request';
   customerEmail: string;
   customerName: string | null;
   assignedToId: string | null;
@@ -86,13 +86,7 @@ export default function Tickets() {
     fetchTickets();
   };
 
-  if (loading) {
-    return (
-      <div className="flex h-[calc(100vh-80px)] items-center justify-center bg-zinc-950">
-        <div className="h-10 w-10 animate-spin rounded-full border-4 border-indigo-500 border-t-transparent shadow-[0_0_15px_rgba(99,102,241,0.5)]" />
-      </div>
-    );
-  }
+
 
   return (
     <div className="min-h-[calc(100vh-80px)] bg-zinc-950 px-8 py-10 relative overflow-hidden">
@@ -129,13 +123,39 @@ export default function Tickets() {
                   <th className="px-6 py-4 text-xs font-bold uppercase tracking-wider text-indigo-300/80">Customer</th>
                   <th className="px-6 py-4 text-xs font-bold uppercase tracking-wider text-indigo-300/80">Status</th>
                   <th className="px-6 py-4 text-xs font-bold uppercase tracking-wider text-indigo-300/80">Category</th>
+                  <th className="px-6 py-4 text-xs font-bold uppercase tracking-wider text-indigo-300/80">Created At</th>
                   <th className="px-6 py-4 text-xs font-bold uppercase tracking-wider text-indigo-300/80 text-right">Actions</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-white/5">
-                {tickets.length === 0 ? (
+                {loading ? (
+                  Array.from({ length: 5 }).map((_, i) => (
+                    <tr key={`skeleton-${i}`} className="animate-pulse border-b border-white/5 last:border-0">
+                      <td className="px-6 py-4">
+                        <div className="h-5 w-48 bg-white/10 rounded mb-2"></div>
+                        <div className="h-3 w-64 bg-white/10 rounded"></div>
+                      </td>
+                      <td className="px-6 py-4">
+                        <div className="h-4 w-32 bg-white/10 rounded mb-1"></div>
+                        <div className="h-3 w-40 bg-white/10 rounded"></div>
+                      </td>
+                      <td className="px-6 py-4">
+                        <div className="h-6 w-20 bg-white/10 rounded-full"></div>
+                      </td>
+                      <td className="px-6 py-4">
+                        <div className="h-6 w-24 bg-white/10 rounded-lg"></div>
+                      </td>
+                      <td className="px-6 py-4">
+                        <div className="h-4 w-28 bg-white/10 rounded"></div>
+                      </td>
+                      <td className="px-6 py-4">
+                        <div className="h-8 w-16 bg-white/10 rounded-xl ml-auto"></div>
+                      </td>
+                    </tr>
+                  ))
+                ) : tickets.length === 0 ? (
                   <tr>
-                    <td colSpan={5} className="px-6 py-8 text-center text-zinc-500 font-medium">
+                    <td colSpan={6} className="px-6 py-8 text-center text-zinc-500 font-medium">
                       No tickets found.
                     </td>
                   </tr>
@@ -161,8 +181,15 @@ export default function Tickets() {
                       </td>
                       <td className="px-6 py-4">
                         <span className="text-zinc-400 text-sm font-medium bg-zinc-800/50 px-3 py-1 rounded-lg border border-white/5">
-                          {ticket.category}
+                          {ticket.category.replace(/_/g, ' ')}
                         </span>
+                      </td>
+                      <td className="px-6 py-4 text-sm text-zinc-400 font-medium group-hover:text-zinc-200 transition-colors">
+                        {new Date(ticket.createdAt).toLocaleDateString(undefined, { 
+                          year: 'numeric', 
+                          month: 'short', 
+                          day: 'numeric' 
+                        })}
                       </td>
                       <td className="px-6 py-4 text-right">
                         <div className="flex justify-end gap-3 opacity-0 group-hover:opacity-100 transition-opacity">

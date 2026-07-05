@@ -38,7 +38,7 @@ router.post('/tickets', async (req: Request, res: Response) => {
       data: {
         subject,
         body,
-        category: category || 'General Questions',
+        category: category || 'General_Questions',
         customerEmail,
         customerName: customerName || null,
         status: 'Open' // Default status for new incoming tickets

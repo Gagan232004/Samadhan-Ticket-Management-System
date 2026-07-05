@@ -75,7 +75,7 @@ router.post('/', async (req: Request, res: Response) => {
       data: {
         subject,
         body,
-        category: category || 'General Questions',
+        category: category || 'General_Questions',
         customerEmail,
         customerName
       }

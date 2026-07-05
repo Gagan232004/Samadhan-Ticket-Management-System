@@ -15,7 +15,7 @@ export default function TicketModal({ ticket, onClose, onSave }: TicketModalProp
   const [customerEmail, setCustomerEmail] = useState(ticket?.customerEmail || '');
   const [customerName, setCustomerName] = useState(ticket?.customerName || '');
   const [status, setStatus] = useState(ticket?.status || 'Open');
-  const [category, setCategory] = useState(ticket?.category || 'General Questions');
+  const [category, setCategory] = useState(ticket?.category || 'General_Questions');
   
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
@@ -63,7 +63,11 @@ export default function TicketModal({ ticket, onClose, onSave }: TicketModalProp
       />
       
       {/* Modal Content */}
-      <div className="relative bg-zinc-900 border border-white/10 rounded-2xl shadow-2xl w-full max-w-lg overflow-hidden flex flex-col max-h-[90vh]">
+      <div 
+        role="dialog" 
+        aria-modal="true"
+        className="relative bg-zinc-900 border border-white/10 rounded-2xl shadow-2xl w-full max-w-lg overflow-hidden flex flex-col max-h-[90vh]"
+      >
         
         {/* Header */}
         <div className="px-6 py-4 border-b border-white/5 flex justify-between items-center bg-zinc-900/50">
@@ -91,8 +95,9 @@ export default function TicketModal({ ticket, onClose, onSave }: TicketModalProp
             {!isEditing && (
               <>
                 <div>
-                  <label className="block text-sm font-medium text-zinc-400 mb-1">Subject</label>
+                  <label htmlFor="subject" className="block text-sm font-medium text-zinc-400 mb-1">Subject</label>
                   <input
+                    id="subject"
                     type="text"
                     value={subject}
                     onChange={e => setSubject(e.target.value)}
@@ -101,8 +106,9 @@ export default function TicketModal({ ticket, onClose, onSave }: TicketModalProp
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-zinc-400 mb-1">Message Body</label>
+                  <label htmlFor="body" className="block text-sm font-medium text-zinc-400 mb-1">Message Body</label>
                   <textarea
+                    id="body"
                     value={body}
                     onChange={e => setBody(e.target.value)}
                     required
@@ -112,8 +118,9 @@ export default function TicketModal({ ticket, onClose, onSave }: TicketModalProp
                 </div>
                 <div className="grid grid-cols-2 gap-4">
                   <div>
-                    <label className="block text-sm font-medium text-zinc-400 mb-1">Customer Name</label>
+                    <label htmlFor="customerName" className="block text-sm font-medium text-zinc-400 mb-1">Customer Name</label>
                     <input
+                      id="customerName"
                       type="text"
                       value={customerName}
                       onChange={e => setCustomerName(e.target.value)}
@@ -121,8 +128,9 @@ export default function TicketModal({ ticket, onClose, onSave }: TicketModalProp
                     />
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-zinc-400 mb-1">Customer Email</label>
+                    <label htmlFor="customerEmail" className="block text-sm font-medium text-zinc-400 mb-1">Customer Email</label>
                     <input
+                      id="customerEmail"
                       type="email"
                       value={customerEmail}
                       onChange={e => setCustomerEmail(e.target.value)}
@@ -152,9 +160,9 @@ export default function TicketModal({ ticket, onClose, onSave }: TicketModalProp
                   onChange={e => setCategory(e.target.value)}
                   className="w-full bg-zinc-950 border border-white/10 rounded-lg px-4 py-2.5 text-white focus:outline-none focus:ring-2 focus:ring-indigo-500/50 focus:border-indigo-500 transition-all"
                 >
-                  <option value="General Questions">General Questions</option>
-                  <option value="Technical Questions">Technical Questions</option>
-                  <option value="Refund Request">Refund Request</option>
+                  <option value="General_Questions">General Questions</option>
+                  <option value="Technical_Questions">Technical Questions</option>
+                  <option value="Refund_Request">Refund Request</option>
                 </select>
               </div>
               

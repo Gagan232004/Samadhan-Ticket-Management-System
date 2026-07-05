@@ -11,6 +11,18 @@ datasource db {
   provider = "postgresql"
 }
 
+enum TicketStatus {
+  Open
+  Closed
+  Resolved
+}
+
+enum TicketCategory {
+  General_Questions
+  Technical_Questions
+  Refund_Request
+}
+
 model User {
   id            String    @id
   name          String
@@ -89,8 +101,8 @@ model Ticket {
   id            String    @id @default(cuid())
   subject       String
   body          String    @db.Text
-  status        String    @default("Open") // Open, Closed, Resolved
-  category      String    @default("General Questions") // General Questions, Technical Questions, Refund Request
+  status        TicketStatus    @default(Open)
+  category      TicketCategory  @default(General_Questions)
   
   customerEmail String
   customerName  String?
