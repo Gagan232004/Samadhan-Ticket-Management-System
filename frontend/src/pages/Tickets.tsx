@@ -26,14 +26,16 @@ export interface Ticket {
 export default function Tickets() {
   const { data: session } = useSession();
   const [tickets, setTickets] = useState<Ticket[]>([]);
+  const [totalCount, setTotalCount] = useState(0);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingTicket, setEditingTicket] = useState<Ticket | null>(null);
 
-  // TanStack Table Sorting State
+  // TanStack Table States
   const [sorting, setSorting] = useState<SortingState>([{ id: 'createdAt', desc: true }]);
+  const [pagination, setPagination] = useState({ pageIndex: 0, pageSize: 10 });
 
   // Filter States
   const [searchQuery, setSearchQuery] = useState('');
@@ -48,6 +50,11 @@ export default function Tickets() {
     return () => clearTimeout(handler);
   }, [searchQuery]);
 
+  // Reset to page 1 when filters change
+  useEffect(() => {
+    setPagination(prev => ({ ...prev, pageIndex: 0 }));
+  }, [debouncedSearch, statusFilter, categoryFilter, sorting]);
+
   const fetchTickets = async () => {
     setLoading(true);
     try {
@@ -59,6 +66,9 @@ export default function Tickets() {
       const url = new URL(`${apiUrl}/api/tickets`);
       url.searchParams.set('sortBy', sortField);
       url.searchParams.set('order', sortOrder);
+      url.searchParams.set('page', (pagination.pageIndex + 1).toString());
+      url.searchParams.set('limit', pagination.pageSize.toString());
+      
       if (debouncedSearch) url.searchParams.set('search', debouncedSearch);
       if (statusFilter !== 'All') url.searchParams.set('status', statusFilter);
       if (categoryFilter !== 'All') url.searchParams.set('category', categoryFilter);
@@ -69,7 +79,8 @@ export default function Tickets() {
       
       if (!response.ok) throw new Error('Failed to fetch tickets');
       const data = await response.json();
-      setTickets(data);
+      setTickets(data.data);
+      setTotalCount(data.totalCount);
     } catch (err: any) {
       setError(err.message);
     } finally {
@@ -79,7 +90,7 @@ export default function Tickets() {
 
   useEffect(() => {
     fetchTickets();
-  }, [sorting, debouncedSearch, statusFilter, categoryFilter]);
+  }, [pagination.pageIndex, pagination.pageSize, sorting, debouncedSearch, statusFilter, categoryFilter]);
 
   const handleCreate = () => {
     setEditingTicket(null);
@@ -198,12 +209,16 @@ export default function Tickets() {
   const table = useReactTable({
     data: tickets,
     columns,
+    pageCount: Math.ceil(totalCount / pagination.pageSize),
     state: {
       sorting,
+      pagination
     },
     onSortingChange: setSorting,
+    onPaginationChange: setPagination,
     getCoreRowModel: getCoreRowModel(),
     manualSorting: true, // Server-side sorting
+    manualPagination: true, // Server-side pagination
   });
 
   return (
@@ -346,6 +361,69 @@ export default function Tickets() {
             </table>
           </div>
         </div>
+
+        {/* Pagination Controls */}
+        <div className="mt-6 flex flex-col sm:flex-row items-center justify-between gap-4 bg-zinc-900/50 backdrop-blur-md p-4 rounded-2xl border border-white/5 shadow-lg">
+          <div className="flex items-center gap-4 text-sm text-zinc-400">
+            <span>
+              Page <span className="font-bold text-white">{table.getState().pagination.pageIndex + 1}</span> of <span className="font-bold text-white">{table.getPageCount() || 1}</span>
+            </span>
+            <span className="w-px h-4 bg-white/10"></span>
+            <span>Total: {totalCount} tickets</span>
+          </div>
+          
+          <div className="flex items-center gap-3">
+            <select
+              value={table.getState().pagination.pageSize}
+              onChange={e => {
+                table.setPageSize(Number(e.target.value))
+              }}
+              className="px-3 py-1.5 bg-zinc-950 border border-white/10 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500/50 text-zinc-200 text-sm appearance-none"
+            >
+              {[10, 20, 30, 40, 50].map(pageSize => (
+                <option key={pageSize} value={pageSize}>
+                  Show {pageSize}
+                </option>
+              ))}
+            </select>
+            
+            <div className="flex gap-2">
+              <button
+                className="p-1.5 rounded-lg border border-white/10 bg-zinc-800 text-zinc-300 hover:bg-zinc-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                onClick={() => table.setPageIndex(0)}
+                disabled={!table.getCanPreviousPage()}
+                title="First Page"
+              >
+                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M11 19l-7-7 7-7m8 14l-7-7 7-7"></path></svg>
+              </button>
+              <button
+                className="p-1.5 rounded-lg border border-white/10 bg-zinc-800 text-zinc-300 hover:bg-zinc-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                onClick={() => table.previousPage()}
+                disabled={!table.getCanPreviousPage()}
+                title="Previous Page"
+              >
+                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 19l-7-7 7-7"></path></svg>
+              </button>
+              <button
+                className="p-1.5 rounded-lg border border-white/10 bg-zinc-800 text-zinc-300 hover:bg-zinc-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                onClick={() => table.nextPage()}
+                disabled={!table.getCanNextPage()}
+                title="Next Page"
+              >
+                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 5l7 7-7 7"></path></svg>
+              </button>
+              <button
+                className="p-1.5 rounded-lg border border-white/10 bg-zinc-800 text-zinc-300 hover:bg-zinc-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                onClick={() => table.setPageIndex(table.getPageCount() - 1)}
+                disabled={!table.getCanNextPage()}
+                title="Last Page"
+              >
+                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 5l7 7-7 7M5 5l7 7-7 7"></path></svg>
+              </button>
+            </div>
+          </div>
+        </div>
+
       </div>
       
       {isModalOpen && (

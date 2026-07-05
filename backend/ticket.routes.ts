@@ -24,11 +24,15 @@ router.use(async (req: Request, res: Response, next) => {
 // GET all tickets
 router.get('/', async (req: Request, res: Response) => {
   try {
-    const { sortBy, order, search, status, category } = req.query;
+    const { sortBy, order, search, status, category, page, limit } = req.query;
 
     const validSortFields = ['subject', 'customerName', 'status', 'category', 'createdAt'];
     const sortField = validSortFields.includes(sortBy as string) ? (sortBy as string) : 'createdAt';
     const sortOrder = (order === 'asc' || order === 'desc') ? order : 'desc';
+
+    const pageNumber = parseInt(page as string, 10) || 1;
+    const pageSize = parseInt(limit as string, 10) || 10;
+    const skip = (pageNumber - 1) * pageSize;
 
     const where: any = {};
     if (search && typeof search === 'string' && search.trim() !== '') {
@@ -45,16 +49,29 @@ router.get('/', async (req: Request, res: Response) => {
       where.category = category;
     }
 
-    const tickets = await prisma.ticket.findMany({
-      where,
-      orderBy: { [sortField]: sortOrder },
-      include: {
-        assignedTo: {
-          select: { name: true, email: true }
-        }
-      }
+    const [tickets, totalCount] = await Promise.all([
+      prisma.ticket.findMany({
+        where,
+        orderBy: { [sortField]: sortOrder },
+        include: {
+          assignedTo: {
+            select: { name: true, email: true }
+          }
+        },
+        skip,
+        take: pageSize
+      }),
+      prisma.ticket.count({ where })
+    ]);
+
+    const totalPages = Math.ceil(totalCount / pageSize);
+
+    res.json({
+      data: tickets,
+      totalCount,
+      page: pageNumber,
+      totalPages
     });
-    res.json(tickets);
   } catch (err: any) {
     console.error('Error fetching tickets:', err);
     res.status(500).json({ error: 'Failed to fetch tickets' });
