@@ -1,6 +1,13 @@
 import { useState, useEffect } from 'react';
 import { useSession } from '../lib/auth-client';
 import TicketModal from '../components/TicketModal';
+import {
+  useReactTable,
+  getCoreRowModel,
+  flexRender,
+  createColumnHelper,
+  type SortingState
+} from '@tanstack/react-table';
 
 export interface Ticket {
   id: string;
@@ -25,16 +32,22 @@ export default function Tickets() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingTicket, setEditingTicket] = useState<Ticket | null>(null);
 
+  // TanStack Table Sorting State
+  const [sorting, setSorting] = useState<SortingState>([{ id: 'createdAt', desc: true }]);
+
   const fetchTickets = async () => {
+    setLoading(true);
     try {
-      const res = await fetch(import.meta.env.VITE_API_URL + '/api/tickets', {
-        headers: {
-          // Send credentials for auth
-        },
-        credentials: 'omit' // actually better-auth uses cookies by default if configured, but let's just rely on auth-client for fetch or standard fetch with credentials: true
-      });
       const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:5000';
-      const response = await fetch(apiUrl + '/api/tickets', {
+      
+      const sortField = sorting.length ? sorting[0].id : 'createdAt';
+      const sortOrder = sorting.length && sorting[0].desc ? 'desc' : 'asc';
+      
+      const url = new URL(`${apiUrl}/api/tickets`);
+      url.searchParams.set('sortBy', sortField);
+      url.searchParams.set('order', sortOrder);
+
+      const response = await fetch(url.toString(), {
         credentials: 'include'
       });
       
@@ -50,7 +63,7 @@ export default function Tickets() {
 
   useEffect(() => {
     fetchTickets();
-  }, []);
+  }, [sorting]); // Re-fetch when sorting changes
 
   const handleCreate = () => {
     setEditingTicket(null);
@@ -86,7 +99,96 @@ export default function Tickets() {
     fetchTickets();
   };
 
+  const columnHelper = createColumnHelper<Ticket>();
 
+  const columns = [
+    columnHelper.accessor('subject', {
+      header: 'Subject',
+      cell: info => (
+        <>
+          <div className="text-zinc-200 font-semibold">{info.getValue()}</div>
+          <div className="text-xs text-zinc-500 mt-1 truncate max-w-xs">{info.row.original.body}</div>
+        </>
+      ),
+    }),
+    columnHelper.accessor('customerName', {
+      header: 'Customer',
+      cell: info => (
+        <>
+          <div className="text-zinc-300">{info.getValue() || 'Unknown'}</div>
+          <div className="text-xs text-zinc-500">{info.row.original.customerEmail}</div>
+        </>
+      ),
+    }),
+    columnHelper.accessor('status', {
+      header: 'Status',
+      cell: info => {
+        const status = info.getValue();
+        return (
+          <span className={`inline-flex px-2.5 py-1 rounded-full text-xs font-bold border ${
+            status === 'Open' ? 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20' :
+            status === 'Resolved' ? 'bg-indigo-500/10 text-indigo-400 border-indigo-500/20' :
+            'bg-zinc-500/10 text-zinc-400 border-zinc-500/20'
+          }`}>
+            {status}
+          </span>
+        );
+      }
+    }),
+    columnHelper.accessor('category', {
+      header: 'Category',
+      cell: info => (
+        <span className="text-zinc-400 text-sm font-medium bg-zinc-800/50 px-3 py-1 rounded-lg border border-white/5 whitespace-nowrap">
+          {info.getValue().replace(/_/g, ' ')}
+        </span>
+      )
+    }),
+    columnHelper.accessor('createdAt', {
+      header: 'Created At',
+      cell: info => (
+        <span className="whitespace-nowrap">
+          {new Date(info.getValue()).toLocaleDateString(undefined, { 
+            year: 'numeric', 
+            month: 'short', 
+            day: 'numeric' 
+          })}
+        </span>
+      )
+    }),
+    columnHelper.display({
+      id: 'actions',
+      header: () => <div className="text-right w-full block">Actions</div>,
+      cell: info => (
+        <div className="flex justify-end gap-3 opacity-0 group-hover:opacity-100 transition-opacity">
+          <button 
+            onClick={() => handleEdit(info.row.original)}
+            className="text-indigo-400 hover:text-indigo-300 font-medium text-sm transition-colors hover:underline"
+          >
+            Edit
+          </button>
+          {(session?.user as any)?.role === 'admin' && (
+            <button 
+              onClick={() => handleDelete(info.row.original.id)}
+              className="text-red-400 hover:text-red-300 font-medium text-sm transition-colors hover:underline"
+            >
+              Delete
+            </button>
+          )}
+        </div>
+      )
+    })
+  ];
+
+  const table = useReactTable({
+    data: tickets,
+    columns,
+    state: {
+      sorting,
+    },
+    onSortingChange: setSorting,
+    getCoreRowModel: getCoreRowModel(),
+    manualSorting: true, // Server-side sorting
+  });
 
   return (
     <div className="min-h-[calc(100vh-80px)] bg-zinc-950 px-8 py-10 relative overflow-hidden">
@@ -118,14 +220,29 @@ export default function Tickets() {
           <div className="overflow-x-auto">
             <table className="w-full text-left border-collapse">
               <thead>
-                <tr className="bg-white/5 border-b border-white/5">
-                  <th className="px-6 py-4 text-xs font-bold uppercase tracking-wider text-indigo-300/80">Subject</th>
-                  <th className="px-6 py-4 text-xs font-bold uppercase tracking-wider text-indigo-300/80">Customer</th>
-                  <th className="px-6 py-4 text-xs font-bold uppercase tracking-wider text-indigo-300/80">Status</th>
-                  <th className="px-6 py-4 text-xs font-bold uppercase tracking-wider text-indigo-300/80">Category</th>
-                  <th className="px-6 py-4 text-xs font-bold uppercase tracking-wider text-indigo-300/80">Created At</th>
-                  <th className="px-6 py-4 text-xs font-bold uppercase tracking-wider text-indigo-300/80 text-right">Actions</th>
-                </tr>
+                {table.getHeaderGroups().map(headerGroup => (
+                  <tr key={headerGroup.id} className="bg-white/5 border-b border-white/5">
+                    {headerGroup.headers.map(header => (
+                      <th 
+                        key={header.id} 
+                        className={`px-6 py-4 text-xs font-bold uppercase tracking-wider text-indigo-300/80 ${header.column.getCanSort() ? 'cursor-pointer select-none hover:text-indigo-200 transition-colors' : ''}`}
+                        onClick={header.column.getToggleSortingHandler()}
+                      >
+                        <div className="flex items-center gap-2">
+                          {flexRender(
+                            header.column.columnDef.header,
+                            header.getContext()
+                          )}
+                          {{
+                            asc: <span className="text-indigo-400 font-bold ml-1">↑</span>,
+                            desc: <span className="text-indigo-400 font-bold ml-1">↓</span>,
+                          }[header.column.getIsSorted() as string] ?? 
+                          (header.column.getCanSort() ? <span className="text-white/20 font-bold ml-1">↕</span> : null)}
+                        </div>
+                      </th>
+                    ))}
+                  </tr>
+                ))}
               </thead>
               <tbody className="divide-y divide-white/5">
                 {loading ? (
@@ -160,55 +277,16 @@ export default function Tickets() {
                     </td>
                   </tr>
                 ) : (
-                  tickets.map(ticket => (
-                    <tr key={ticket.id} className="group hover:bg-white/[0.02] transition-colors">
-                      <td className="px-6 py-4">
-                        <div className="text-zinc-200 font-semibold">{ticket.subject}</div>
-                        <div className="text-xs text-zinc-500 mt-1 truncate max-w-xs">{ticket.body}</div>
-                      </td>
-                      <td className="px-6 py-4">
-                        <div className="text-zinc-300">{ticket.customerName || 'Unknown'}</div>
-                        <div className="text-xs text-zinc-500">{ticket.customerEmail}</div>
-                      </td>
-                      <td className="px-6 py-4">
-                        <span className={`inline-flex px-2.5 py-1 rounded-full text-xs font-bold border ${
-                          ticket.status === 'Open' ? 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20' :
-                          ticket.status === 'Resolved' ? 'bg-indigo-500/10 text-indigo-400 border-indigo-500/20' :
-                          'bg-zinc-500/10 text-zinc-400 border-zinc-500/20'
-                        }`}>
-                          {ticket.status}
-                        </span>
-                      </td>
-                      <td className="px-6 py-4">
-                        <span className="text-zinc-400 text-sm font-medium bg-zinc-800/50 px-3 py-1 rounded-lg border border-white/5">
-                          {ticket.category.replace(/_/g, ' ')}
-                        </span>
-                      </td>
-                      <td className="px-6 py-4 text-sm text-zinc-400 font-medium group-hover:text-zinc-200 transition-colors">
-                        {new Date(ticket.createdAt).toLocaleDateString(undefined, { 
-                          year: 'numeric', 
-                          month: 'short', 
-                          day: 'numeric' 
-                        })}
-                      </td>
-                      <td className="px-6 py-4 text-right">
-                        <div className="flex justify-end gap-3 opacity-0 group-hover:opacity-100 transition-opacity">
-                          <button 
-                            onClick={() => handleEdit(ticket)}
-                            className="text-indigo-400 hover:text-indigo-300 font-medium text-sm transition-colors hover:underline"
-                          >
-                            Edit
-                          </button>
-                          {(session?.user as any)?.role === 'admin' && (
-                            <button 
-                              onClick={() => handleDelete(ticket.id)}
-                              className="text-red-400 hover:text-red-300 font-medium text-sm transition-colors hover:underline"
-                            >
-                              Delete
-                            </button>
-                          )}
-                        </div>
-                      </td>
+                  table.getRowModel().rows.map(row => (
+                    <tr key={row.id} className="group hover:bg-white/[0.02] transition-colors">
+                      {row.getVisibleCells().map(cell => (
+                        <td 
+                          key={cell.id} 
+                          className={`px-6 py-4 ${cell.column.id === 'createdAt' ? 'text-sm text-zinc-400 font-medium group-hover:text-zinc-200 transition-colors' : ''}`}
+                        >
+                          {flexRender(cell.column.columnDef.cell, cell.getContext())}
+                        </td>
+                      ))}
                     </tr>
                   ))
                 )}

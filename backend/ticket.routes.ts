@@ -24,8 +24,14 @@ router.use(async (req: Request, res: Response, next) => {
 // GET all tickets
 router.get('/', async (req: Request, res: Response) => {
   try {
+    const { sortBy, order } = req.query;
+
+    const validSortFields = ['subject', 'customerName', 'status', 'category', 'createdAt'];
+    const sortField = validSortFields.includes(sortBy as string) ? (sortBy as string) : 'createdAt';
+    const sortOrder = (order === 'asc' || order === 'desc') ? order : 'desc';
+
     const tickets = await prisma.ticket.findMany({
-      orderBy: { createdAt: 'desc' },
+      orderBy: { [sortField]: sortOrder },
       include: {
         assignedTo: {
           select: { name: true, email: true }
