@@ -33,8 +33,8 @@ export default function Tickets() {
         },
         credentials: 'omit' // actually better-auth uses cookies by default if configured, but let's just rely on auth-client for fetch or standard fetch with credentials: true
       });
-      // Wait, we need credentials: 'include' for cross-origin cookies if API is on 5000 and frontend on 5173
-      const response = await fetch(import.meta.env.VITE_API_URL + '/api/tickets', {
+      const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:5000';
+      const response = await fetch(apiUrl + '/api/tickets', {
         credentials: 'include'
       });
       
@@ -65,7 +65,8 @@ export default function Tickets() {
   const handleDelete = async (id: string) => {
     if (!confirm('Are you sure you want to delete this ticket?')) return;
     try {
-      const response = await fetch(import.meta.env.VITE_API_URL + `/api/tickets/${id}`, {
+      const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:5000';
+      const response = await fetch(apiUrl + `/api/tickets/${id}`, {
         method: 'DELETE',
         credentials: 'include'
       });

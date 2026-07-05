@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Ticket } from '../pages/Tickets';
+import type { Ticket } from '../pages/Tickets';
 
 interface TicketModalProps {
   ticket: Ticket | null;
@@ -26,7 +26,8 @@ export default function TicketModal({ ticket, onClose, onSave }: TicketModalProp
     setError('');
 
     try {
-      const url = import.meta.env.VITE_API_URL + (isEditing ? `/api/tickets/${ticket.id}` : '/api/tickets');
+      const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:5000';
+      const url = apiUrl + (isEditing ? `/api/tickets/${ticket.id}` : '/api/tickets');
       const method = isEditing ? 'PATCH' : 'POST';
       
       const response = await fetch(url, {
