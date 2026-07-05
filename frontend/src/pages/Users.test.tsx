@@ -150,4 +150,44 @@ describe('Users Component', () => {
       expect(screen.queryByText('Create New User')).not.toBeInTheDocument();
     });
   });
+
+  describe('Edit User Dialog Interactions', () => {
+    it('opens the edit dialog with populated data when edit button is clicked', async () => {
+      const mockUsers = [
+        {
+          id: '1',
+          name: 'Jane Smith',
+          email: 'jane@example.com',
+          role: 'admin',
+          emailVerified: true,
+          createdAt: '2023-01-01T12:00:00Z',
+        }
+      ];
+
+      vi.mocked(axios.get).mockResolvedValueOnce({ data: mockUsers });
+      renderWithClient(<Users />);
+      
+      // Wait for table to load
+      await waitFor(() => {
+        expect(screen.getByText('Jane Smith')).toBeInTheDocument();
+      });
+      
+      // Find and click the edit button
+      const editButton = await screen.findByTitle('Edit User');
+      await userEvent.click(editButton);
+      
+      // Verify modal opens
+      expect(screen.getByText('Edit User')).toBeInTheDocument();
+      
+      // Verify form is populated
+      const nameInput = screen.getByDisplayValue('Jane Smith');
+      expect(nameInput).toBeInTheDocument();
+      
+      const emailInput = screen.getByDisplayValue('jane@example.com');
+      expect(emailInput).toBeInTheDocument();
+      
+      const roleSelect = screen.getByDisplayValue('Admin'); // Wait, the select option is 'Admin', 'User', 'Agent'
+      expect(roleSelect).toBeInTheDocument();
+    });
+  });
 });

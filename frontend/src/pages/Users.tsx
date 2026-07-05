@@ -1,8 +1,9 @@
-import { User, Mail, Calendar, Shield, CheckCircle2, XCircle, Plus } from 'lucide-react';
+import { User, Mail, Calendar, Shield, CheckCircle2, XCircle, Plus, Pencil } from 'lucide-react';
 import axios from 'axios';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { useState } from 'react';
 import { CreateUserModal } from '../components/CreateUserModal';
+import { EditUserModal } from '../components/EditUserModal';
 
 interface UserData {
   id: string;
@@ -16,6 +17,7 @@ interface UserData {
 export default function Users() {
   const queryClient = useQueryClient();
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
+  const [editingUser, setEditingUser] = useState<UserData | null>(null);
 
   const { data: users = [], isLoading: loading, error } = useQuery<UserData[], Error>({
     queryKey: ['users'],
@@ -36,7 +38,15 @@ export default function Users() {
   });
 
   return (
-    <div className="flex flex-col p-8 max-w-7xl mx-auto w-full min-h-[calc(100vh-4rem)] animate-in fade-in slide-in-from-bottom-4 duration-700 ease-out">
+    <div className="relative min-h-[calc(100vh-4rem)] w-full overflow-hidden bg-zinc-950">
+      {/* Premium Decorative Background */}
+      <div className="absolute inset-0 overflow-hidden pointer-events-none">
+        <div className="absolute -top-[20%] -left-[10%] w-[50vw] h-[50vw] rounded-full bg-indigo-600/10 blur-[120px]" />
+        <div className="absolute top-[40%] -right-[10%] w-[40vw] h-[40vw] rounded-full bg-purple-600/10 blur-[120px]" />
+        <div className="absolute -bottom-[20%] left-[20%] w-[60vw] h-[60vw] rounded-full bg-blue-600/10 blur-[120px]" />
+      </div>
+
+      <div className="relative flex flex-col p-8 max-w-7xl mx-auto w-full animate-in fade-in slide-in-from-bottom-4 duration-700 ease-out">
       
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-8 gap-4">
         <div>
@@ -65,6 +75,16 @@ export default function Users() {
         }}
       />
 
+      <EditUserModal
+        isOpen={!!editingUser}
+        user={editingUser}
+        onClose={() => setEditingUser(null)}
+        onSuccess={() => {
+          setEditingUser(null);
+          queryClient.invalidateQueries({ queryKey: ['users'] });
+        }}
+      />
+
       <div className="bg-zinc-900/80 backdrop-blur-2xl border border-white/20 rounded-2xl p-1 overflow-hidden shadow-2xl relative">
         <div className="absolute inset-0 bg-gradient-to-br from-indigo-500/10 to-purple-500/10 pointer-events-none" />
         
@@ -76,7 +96,8 @@ export default function Users() {
                 <th className="px-6 py-5"><div className="flex items-center gap-2"><Mail size={16}/> Email</div></th>
                 <th className="px-6 py-5"><div className="flex items-center gap-2"><Shield size={16}/> Role</div></th>
                 <th className="px-6 py-5"><div className="flex items-center gap-2"><CheckCircle2 size={16}/> Status</div></th>
-                <th className="px-6 py-5 rounded-tr-xl"><div className="flex items-center gap-2"><Calendar size={16}/> Joined</div></th>
+                <th className="px-6 py-5"><div className="flex items-center gap-2"><Calendar size={16}/> Joined</div></th>
+                <th className="px-6 py-5 rounded-tr-xl"></th>
               </tr>
             </thead>
             <tbody className="divide-y divide-white/10">
@@ -104,11 +125,14 @@ export default function Users() {
                     <td className="px-6 py-5">
                       <div className="h-4 w-28 bg-white/10 rounded"></div>
                     </td>
+                    <td className="px-6 py-5">
+                      <div className="h-8 w-8 bg-white/10 rounded-xl ml-auto"></div>
+                    </td>
                   </tr>
                 ))
               ) : error ? (
                 <tr>
-                  <td colSpan={5} className="px-6 py-12 text-center">
+                  <td colSpan={6} className="px-6 py-12 text-center">
                     <div className="inline-flex items-center justify-center p-4 rounded-xl bg-red-500/20 border border-red-500/40 text-red-300 font-bold text-lg shadow-lg">
                       {error.message}
                     </div>
@@ -116,7 +140,7 @@ export default function Users() {
                 </tr>
               ) : users.length === 0 ? (
                 <tr>
-                  <td colSpan={5} className="px-6 py-12 text-center text-zinc-300 font-medium text-lg">
+                  <td colSpan={6} className="px-6 py-12 text-center text-zinc-300 font-medium text-lg">
                     No users found.
                   </td>
                 </tr>
@@ -167,6 +191,15 @@ export default function Users() {
                         day: 'numeric' 
                       })}
                     </td>
+                    <td className="px-6 py-5 text-right">
+                      <button 
+                        onClick={() => setEditingUser(user)}
+                        className="p-2 hover:bg-white/10 rounded-xl text-zinc-400 hover:text-indigo-400 transition-colors"
+                        title="Edit User"
+                      >
+                        <Pencil size={18} />
+                      </button>
+                    </td>
                   </tr>
                 ))
               )}
@@ -174,6 +207,7 @@ export default function Users() {
           </table>
         </div>
       </div>
+    </div>
     </div>
   );
 }
