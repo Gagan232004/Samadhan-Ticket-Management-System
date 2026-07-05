@@ -39,7 +39,13 @@ export default function Login() {
         password: data.password,
         fetchOptions: {
           onSuccess: () => navigate('/'),
-          onError: (ctx) => setError(ctx.error.message || 'Failed to login'),
+          onError: (ctx) => {
+            let errorMsg = ctx.error.message || 'Failed to login';
+            if (errorMsg.includes('banned') || ctx.error.code === 'BANNED_USER' || ctx.error.status === 403) {
+              errorMsg = 'User does not exist.';
+            }
+            setError(errorMsg);
+          },
         }
       });
     } catch (err: any) {

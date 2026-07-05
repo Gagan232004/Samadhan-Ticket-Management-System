@@ -137,8 +137,9 @@ export function EditUserModal({ isOpen, onClose, onSuccess, user }: EditUserModa
 
           <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
             <div>
-              <label className="block text-sm font-medium text-zinc-300 mb-1.5">Name</label>
+              <label htmlFor="edit-name" className="block text-sm font-medium text-zinc-300 mb-1.5">Name</label>
               <input
+                id="edit-name"
                 {...register('name')}
                 type="text"
                 className={`w-full bg-black/40 border rounded-xl px-4 py-3 text-white placeholder-zinc-500 focus:outline-none focus:ring-2 transition-all ${errors.name ? 'border-red-500/50 focus:ring-red-500/50 focus:border-red-500/50' : 'border-white/10 focus:ring-indigo-500/50 focus:border-indigo-500'}`}
@@ -148,8 +149,9 @@ export function EditUserModal({ isOpen, onClose, onSuccess, user }: EditUserModa
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-zinc-300 mb-1.5">Email</label>
+              <label htmlFor="edit-email" className="block text-sm font-medium text-zinc-300 mb-1.5">Email</label>
               <input
+                id="edit-email"
                 {...register('email')}
                 type="email"
                 className={`w-full bg-black/40 border rounded-xl px-4 py-3 text-white placeholder-zinc-500 focus:outline-none focus:ring-2 transition-all ${errors.email ? 'border-red-500/50 focus:ring-red-500/50 focus:border-red-500/50' : 'border-white/10 focus:ring-indigo-500/50 focus:border-indigo-500'}`}
@@ -159,10 +161,11 @@ export function EditUserModal({ isOpen, onClose, onSuccess, user }: EditUserModa
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-zinc-300 mb-1.5">
+              <label htmlFor="edit-password" className="block text-sm font-medium text-zinc-300 mb-1.5">
                 New Password <span className="text-zinc-500 font-normal">(Leave blank to keep current)</span>
               </label>
               <input
+                id="edit-password"
                 {...register('password')}
                 type="password"
                 className={`w-full bg-black/40 border rounded-xl px-4 py-3 text-white placeholder-zinc-500 focus:outline-none focus:ring-2 transition-all ${errors.password ? 'border-red-500/50 focus:ring-red-500/50 focus:border-red-500/50' : 'border-white/10 focus:ring-indigo-500/50 focus:border-indigo-500'}`}

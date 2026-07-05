@@ -23,6 +23,8 @@ model User {
   sessions      Session[]
   accounts      Account[]
 
+  deletedAt     DateTime?
+
   banned     Boolean?  @default(false)
   banReason  String?
   banExpires DateTime?

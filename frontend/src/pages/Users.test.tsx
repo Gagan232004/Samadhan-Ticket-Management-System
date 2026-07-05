@@ -190,4 +190,37 @@ describe('Users Component', () => {
       expect(roleSelect).toBeInTheDocument();
     });
   });
+
+  describe('Delete User Dialog Interactions', () => {
+    it('opens the delete dialog with confirmation when delete button is clicked', async () => {
+      const mockUsers = [
+        {
+          id: '2',
+          name: 'Delete Me',
+          email: 'delete@example.com',
+          role: 'user', // Admins can't be deleted, so we use 'user'
+          emailVerified: true,
+          createdAt: '2023-01-01T12:00:00Z',
+        }
+      ];
+
+      vi.mocked(axios.get).mockResolvedValueOnce({ data: mockUsers });
+      renderWithClient(<Users />);
+      
+      await waitFor(() => {
+        expect(screen.getByText('Delete Me')).toBeInTheDocument();
+      });
+      
+      const deleteButton = await screen.findByTitle('Delete User');
+      await userEvent.click(deleteButton);
+      
+      // Verify modal opens
+      expect(screen.getByText('Delete User')).toBeInTheDocument();
+      expect(screen.getByText(/Are you sure you want to delete/)).toBeInTheDocument();
+      
+      // Verify user info is shown in confirmation
+      expect(screen.getAllByText('Delete Me').length).toBeGreaterThan(0);
+      expect(screen.getByText('(delete@example.com)')).toBeInTheDocument();
+    });
+  });
 });

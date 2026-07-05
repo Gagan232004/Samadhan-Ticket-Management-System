@@ -95,8 +95,9 @@ export function CreateUserModal({ isOpen, onClose, onSuccess }: CreateUserModalP
 
           <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
             <div>
-              <label className="block text-sm font-medium text-zinc-300 mb-1.5">Name</label>
+              <label htmlFor="create-name" className="block text-sm font-medium text-zinc-300 mb-1.5">Name</label>
               <input
+                id="create-name"
                 {...register('name')}
                 type="text"
                 className={`w-full bg-black/40 border rounded-xl px-4 py-3 text-white placeholder-zinc-500 focus:outline-none focus:ring-2 transition-all ${errors.name ? 'border-red-500/50 focus:ring-red-500/50 focus:border-red-500/50' : 'border-white/10 focus:ring-indigo-500/50 focus:border-indigo-500'}`}
@@ -106,8 +107,9 @@ export function CreateUserModal({ isOpen, onClose, onSuccess }: CreateUserModalP
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-zinc-300 mb-1.5">Email</label>
+              <label htmlFor="create-email" className="block text-sm font-medium text-zinc-300 mb-1.5">Email</label>
               <input
+                id="create-email"
                 {...register('email')}
                 type="email"
                 className={`w-full bg-black/40 border rounded-xl px-4 py-3 text-white placeholder-zinc-500 focus:outline-none focus:ring-2 transition-all ${errors.email ? 'border-red-500/50 focus:ring-red-500/50 focus:border-red-500/50' : 'border-white/10 focus:ring-indigo-500/50 focus:border-indigo-500'}`}
@@ -117,8 +119,9 @@ export function CreateUserModal({ isOpen, onClose, onSuccess }: CreateUserModalP
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-zinc-300 mb-1.5">Password</label>
+              <label htmlFor="create-password" className="block text-sm font-medium text-zinc-300 mb-1.5">Password</label>
               <input
+                id="create-password"
                 {...register('password')}
                 type="password"
                 className={`w-full bg-black/40 border rounded-xl px-4 py-3 text-white placeholder-zinc-500 focus:outline-none focus:ring-2 transition-all ${errors.password ? 'border-red-500/50 focus:ring-red-500/50 focus:border-red-500/50' : 'border-white/10 focus:ring-indigo-500/50 focus:border-indigo-500'}`}

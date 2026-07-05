@@ -46,12 +46,62 @@ app.get('/api/users', async (req: Request, res: Response) => {
       emailVerified: true,
       createdAt: true
     },
+    where: {
+      deletedAt: null
+    },
     orderBy: {
       createdAt: 'desc'
     }
   });
 
   res.json(users);
+});
+
+// Delete User Route (Soft Delete)
+app.delete('/api/users/:id', async (req: Request, res: Response) => {
+  const session = await auth.api.getSession({
+    headers: fromNodeHeaders(req.headers)
+  });
+
+  if (!session || !session.user || session.user.role !== 'admin') {
+    res.status(403).json({ error: 'Forbidden' });
+    return;
+  }
+
+  const { id } = req.params;
+
+  try {
+    const targetUser = await prisma.user.findUnique({ where: { id } });
+    
+    if (!targetUser) {
+      res.status(404).json({ error: 'User not found' });
+      return;
+    }
+
+    if (targetUser.role === 'admin') {
+      res.status(400).json({ error: 'Cannot delete admin users' });
+      return;
+    }
+
+    await prisma.user.update({
+      where: { id },
+      data: { 
+        deletedAt: new Date(),
+        banned: true,
+        banReason: 'Account deleted'
+      }
+    });
+
+    // Revoke any active sessions for this user so they are immediately logged out
+    await prisma.session.deleteMany({
+      where: { userId: id }
+    });
+
+    res.json({ success: true, message: 'User deleted successfully' });
+  } catch (err: any) {
+    console.error('Delete user error:', err);
+    res.status(500).json({ error: 'Failed to delete user' });
+  }
 });
 
 // Global Error Handler

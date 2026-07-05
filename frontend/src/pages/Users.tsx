@@ -1,9 +1,10 @@
-import { User, Mail, Calendar, Shield, CheckCircle2, XCircle, Plus, Pencil } from 'lucide-react';
+import { User, Mail, Calendar, Shield, CheckCircle2, XCircle, Plus, Pencil, Trash2 } from 'lucide-react';
 import axios from 'axios';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { useState } from 'react';
 import { CreateUserModal } from '../components/CreateUserModal';
 import { EditUserModal } from '../components/EditUserModal';
+import { DeleteUserModal } from '../components/DeleteUserModal';
 
 interface UserData {
   id: string;
@@ -18,6 +19,7 @@ export default function Users() {
   const queryClient = useQueryClient();
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
   const [editingUser, setEditingUser] = useState<UserData | null>(null);
+  const [deletingUser, setDeletingUser] = useState<UserData | null>(null);
 
   const { data: users = [], isLoading: loading, error } = useQuery<UserData[], Error>({
     queryKey: ['users'],
@@ -85,6 +87,15 @@ export default function Users() {
         }}
       />
 
+      <DeleteUserModal
+        isOpen={!!deletingUser}
+        user={deletingUser}
+        onClose={() => setDeletingUser(null)}
+        onSuccess={() => {
+          setDeletingUser(null);
+          queryClient.invalidateQueries({ queryKey: ['users'] });
+        }}
+      />
       <div className="bg-zinc-900/80 backdrop-blur-2xl border border-white/20 rounded-2xl p-1 overflow-hidden shadow-2xl relative">
         <div className="absolute inset-0 bg-gradient-to-br from-indigo-500/10 to-purple-500/10 pointer-events-none" />
         
@@ -191,14 +202,28 @@ export default function Users() {
                         day: 'numeric' 
                       })}
                     </td>
-                    <td className="px-6 py-5 text-right">
-                      <button 
-                        onClick={() => setEditingUser(user)}
-                        className="p-2 hover:bg-white/10 rounded-xl text-zinc-400 hover:text-indigo-400 transition-colors"
-                        title="Edit User"
-                      >
-                        <Pencil size={18} />
-                      </button>
+                    <td className="px-6 py-5 text-right whitespace-nowrap">
+                      <div className="flex justify-end gap-2">
+                        <button 
+                          onClick={() => setEditingUser(user)}
+                          className="p-2 hover:bg-white/10 rounded-xl text-zinc-400 hover:text-indigo-400 transition-colors"
+                          title="Edit User"
+                        >
+                          <Pencil size={18} />
+                        </button>
+                        <button 
+                          onClick={() => setDeletingUser(user)}
+                          disabled={user.role === 'admin'}
+                          className={`p-2 rounded-xl transition-colors ${
+                            user.role === 'admin' 
+                              ? 'text-zinc-600 cursor-not-allowed' 
+                              : 'text-zinc-400 hover:bg-red-500/20 hover:text-red-400'
+                          }`}
+                          title={user.role === 'admin' ? "Admins cannot be deleted" : "Delete User"}
+                        >
+                          <Trash2 size={18} />
+                        </button>
+                      </div>
                     </td>
                   </tr>
                 ))
