@@ -5,6 +5,8 @@ import Login from './pages/Login';
 import Users from './pages/Users';
 import ProtectedRoute from './components/ProtectedRoute';
 
+import Tickets from './pages/Tickets';
+
 function App() {
   return (
     <>
@@ -17,6 +19,14 @@ function App() {
           element={
             <ProtectedRoute requireAdmin={true}>
               <Users />
+            </ProtectedRoute>
+          } 
+        />
+        <Route 
+          path="/tickets" 
+          element={
+            <ProtectedRoute>
+              <Tickets />
             </ProtectedRoute>
           } 
         />

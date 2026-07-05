@@ -35,6 +35,9 @@ export default function Navbar() {
                 Users
               </Link>
             )}
+            <Link to="/tickets" className="text-white hover:text-indigo-300 font-semibold tracking-wide transition-colors">
+              Tickets
+            </Link>
             <span className="text-indigo-50 font-semibold px-4 py-1.5 rounded-full bg-white/10 border border-white/20 shadow-inner">
               Hello, {session.user.name}
             </span>

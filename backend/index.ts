@@ -26,6 +26,12 @@ app.get('/api/health', (req: Request, res: Response) => {
   res.json({ status: 'success', message: 'Express server is running on Bun!' });
 });
 
+import ticketRoutes from './ticket.routes.js';
+app.use('/api/tickets', ticketRoutes);
+
+import webhookRoutes from './webhook.routes.js';
+app.use('/api/webhooks', webhookRoutes);
+
 // Users Route
 app.get('/api/users', async (req: Request, res: Response) => {
   const session = await auth.api.getSession({
