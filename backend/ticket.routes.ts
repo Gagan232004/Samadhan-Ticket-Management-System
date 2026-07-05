@@ -24,13 +24,29 @@ router.use(async (req: Request, res: Response, next) => {
 // GET all tickets
 router.get('/', async (req: Request, res: Response) => {
   try {
-    const { sortBy, order } = req.query;
+    const { sortBy, order, search, status, category } = req.query;
 
     const validSortFields = ['subject', 'customerName', 'status', 'category', 'createdAt'];
     const sortField = validSortFields.includes(sortBy as string) ? (sortBy as string) : 'createdAt';
     const sortOrder = (order === 'asc' || order === 'desc') ? order : 'desc';
 
+    const where: any = {};
+    if (search && typeof search === 'string' && search.trim() !== '') {
+      where.OR = [
+        { subject: { contains: search, mode: 'insensitive' } },
+        { body: { contains: search, mode: 'insensitive' } },
+        { customerName: { contains: search, mode: 'insensitive' } }
+      ];
+    }
+    if (status && status !== 'All') {
+      where.status = status;
+    }
+    if (category && category !== 'All') {
+      where.category = category;
+    }
+
     const tickets = await prisma.ticket.findMany({
+      where,
       orderBy: { [sortField]: sortOrder },
       include: {
         assignedTo: {

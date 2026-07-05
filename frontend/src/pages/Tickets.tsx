@@ -35,6 +35,19 @@ export default function Tickets() {
   // TanStack Table Sorting State
   const [sorting, setSorting] = useState<SortingState>([{ id: 'createdAt', desc: true }]);
 
+  // Filter States
+  const [searchQuery, setSearchQuery] = useState('');
+  const [debouncedSearch, setDebouncedSearch] = useState('');
+  const [statusFilter, setStatusFilter] = useState('All');
+  const [categoryFilter, setCategoryFilter] = useState('All');
+
+  useEffect(() => {
+    const handler = setTimeout(() => {
+      setDebouncedSearch(searchQuery);
+    }, 300);
+    return () => clearTimeout(handler);
+  }, [searchQuery]);
+
   const fetchTickets = async () => {
     setLoading(true);
     try {
@@ -46,6 +59,9 @@ export default function Tickets() {
       const url = new URL(`${apiUrl}/api/tickets`);
       url.searchParams.set('sortBy', sortField);
       url.searchParams.set('order', sortOrder);
+      if (debouncedSearch) url.searchParams.set('search', debouncedSearch);
+      if (statusFilter !== 'All') url.searchParams.set('status', statusFilter);
+      if (categoryFilter !== 'All') url.searchParams.set('category', categoryFilter);
 
       const response = await fetch(url.toString(), {
         credentials: 'include'
@@ -63,7 +79,7 @@ export default function Tickets() {
 
   useEffect(() => {
     fetchTickets();
-  }, [sorting]); // Re-fetch when sorting changes
+  }, [sorting, debouncedSearch, statusFilter, categoryFilter]);
 
   const handleCreate = () => {
     setEditingTicket(null);
@@ -215,6 +231,42 @@ export default function Tickets() {
             {error}
           </div>
         )}
+
+        {/* Filters */}
+        <div className="mb-6 flex flex-col md:flex-row gap-4 items-center bg-zinc-900/50 backdrop-blur-md p-4 rounded-2xl border border-white/5 shadow-lg">
+          <div className="flex-1 w-full relative">
+            <svg className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-zinc-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
+            <input 
+              type="text" 
+              placeholder="Search subjects or customers..." 
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="w-full pl-10 pr-4 py-2 bg-zinc-950 border border-white/10 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500/50 text-zinc-200 placeholder:text-zinc-500"
+            />
+          </div>
+          <div className="flex gap-4 w-full md:w-auto">
+            <select 
+              value={statusFilter}
+              onChange={(e) => setStatusFilter(e.target.value)}
+              className="px-4 py-2 bg-zinc-950 border border-white/10 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500/50 text-zinc-200 appearance-none min-w-[140px]"
+            >
+              <option value="All">All Statuses</option>
+              <option value="Open">Open</option>
+              <option value="Resolved">Resolved</option>
+              <option value="Closed">Closed</option>
+            </select>
+            <select 
+              value={categoryFilter}
+              onChange={(e) => setCategoryFilter(e.target.value)}
+              className="px-4 py-2 bg-zinc-950 border border-white/10 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500/50 text-zinc-200 appearance-none min-w-[160px]"
+            >
+              <option value="All">All Categories</option>
+              <option value="General_Questions">General Questions</option>
+              <option value="Technical_Questions">Technical Questions</option>
+              <option value="Refund_Request">Refund Request</option>
+            </select>
+          </div>
+        </div>
 
         <div className="bg-zinc-900/50 backdrop-blur-xl border border-white/5 rounded-2xl shadow-2xl overflow-hidden ring-1 ring-white/10">
           <div className="overflow-x-auto">
