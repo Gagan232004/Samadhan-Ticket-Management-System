@@ -32,6 +32,34 @@ app.use('/api/tickets', ticketRoutes);
 import webhookRoutes from './webhook.routes.js';
 app.use('/api/webhooks', webhookRoutes);
 
+// Agents List Route (Accessible to all authenticated users)
+app.get('/api/users/agents', async (req: Request, res: Response) => {
+  const session = await auth.api.getSession({
+    headers: fromNodeHeaders(req.headers)
+  });
+
+  if (!session || !session.user) {
+    res.status(401).json({ error: 'Unauthorized' });
+    return;
+  }
+
+  const agents = await prisma.user.findMany({
+    select: {
+      id: true,
+      name: true,
+      email: true
+    },
+    where: {
+      deletedAt: null
+    },
+    orderBy: {
+      name: 'asc'
+    }
+  });
+
+  res.json(agents);
+});
+
 // Users Route
 app.get('/api/users', async (req: Request, res: Response) => {
   const session = await auth.api.getSession({

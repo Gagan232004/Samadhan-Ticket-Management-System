@@ -132,12 +132,28 @@ router.patch('/:id', async (req: Request, res: Response) => {
   try {
     const { status, category, assignedToId } = req.body;
     
+    // Ensure the assigned user is a valid, active user
+    if (assignedToId) {
+      const validUser = await prisma.user.findFirst({
+        where: { id: assignedToId, deletedAt: null }
+      });
+      if (!validUser) {
+        res.status(400).json({ error: 'Invalid user ID provided for assignment.' });
+        return;
+      }
+    }
+
     const ticket = await prisma.ticket.update({
       where: { id: req.params.id },
       data: {
         ...(status && { status }),
         ...(category && { category }),
         ...(assignedToId !== undefined && { assignedToId })
+      },
+      include: {
+        assignedTo: {
+          select: { name: true, email: true }
+        }
       }
     });
     
