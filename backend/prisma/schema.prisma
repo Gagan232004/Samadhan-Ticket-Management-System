@@ -21,6 +21,7 @@ enum TicketCategory {
   General_Questions
   Technical_Questions
   Refund_Request
+  Others
 }
 
 model User {

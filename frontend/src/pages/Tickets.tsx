@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import { useSession } from '../lib/auth-client';
 import TicketModal from '../components/TicketModal';
 import TicketStatusBadge from '../components/TicketStatusBadge';
+import { CATEGORY_LABELS, STATUS_LABELS } from '../lib/constants';
 import {
   useReactTable,
   getCoreRowModel,
@@ -16,7 +17,7 @@ export interface Ticket {
   subject: string;
   body: string;
   status: 'Open' | 'Closed' | 'Resolved';
-  category: 'General_Questions' | 'Technical_Questions' | 'Refund_Request';
+  category: 'General_Questions' | 'Technical_Questions' | 'Refund_Request' | 'Others';
   customerEmail: string;
   customerName: string | null;
   assignedToId: string | null;
@@ -33,7 +34,6 @@ export default function Tickets() {
   const [error, setError] = useState('');
   
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [editingTicket, setEditingTicket] = useState<Ticket | null>(null);
 
   // TanStack Table States
   const [sorting, setSorting] = useState<SortingState>([{ id: 'createdAt', desc: true }]);
@@ -95,33 +95,10 @@ export default function Tickets() {
   }, [pagination.pageIndex, pagination.pageSize, sorting, debouncedSearch, statusFilter, categoryFilter]);
 
   const handleCreate = () => {
-    setEditingTicket(null);
     setIsModalOpen(true);
   };
 
-  const handleEdit = (ticket: Ticket) => {
-    setEditingTicket(ticket);
-    setIsModalOpen(true);
-  };
 
-  const handleDelete = async (id: string) => {
-    if (!confirm('Are you sure you want to delete this ticket?')) return;
-    try {
-      const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:5000';
-      const response = await fetch(apiUrl + `/api/tickets/${id}`, {
-        method: 'DELETE',
-        credentials: 'include'
-      });
-      if (response.ok) {
-        setTickets(tickets.filter(t => t.id !== id));
-      } else {
-        const err = await response.json();
-        alert(err.error || 'Failed to delete');
-      }
-    } catch (e: any) {
-      alert('Error deleting ticket');
-    }
-  };
 
   const onSave = () => {
     setIsModalOpen(false);
@@ -159,7 +136,7 @@ export default function Tickets() {
       header: 'Category',
       cell: info => (
         <span className="text-zinc-400 text-sm font-medium bg-zinc-800/50 px-3 py-1 rounded-lg border border-white/5 whitespace-nowrap">
-          {info.getValue().replace(/_/g, ' ')}
+          {CATEGORY_LABELS[info.getValue()] || info.getValue()}
         </span>
       )
     }),
@@ -173,28 +150,6 @@ export default function Tickets() {
             day: 'numeric' 
           })}
         </span>
-      )
-    }),
-    columnHelper.display({
-      id: 'actions',
-      header: () => <div className="text-right w-full block">Actions</div>,
-      cell: info => (
-        <div className="flex justify-end gap-3 opacity-0 group-hover:opacity-100 transition-opacity">
-          <button 
-            onClick={() => handleEdit(info.row.original)}
-            className="text-indigo-400 hover:text-indigo-300 font-medium text-sm transition-colors hover:underline"
-          >
-            Edit
-          </button>
-          {(session?.user as any)?.role === 'admin' && (
-            <button 
-              onClick={() => handleDelete(info.row.original.id)}
-              className="text-red-400 hover:text-red-300 font-medium text-sm transition-colors hover:underline"
-            >
-              Delete
-            </button>
-          )}
-        </div>
       )
     })
   ];
@@ -259,9 +214,9 @@ export default function Tickets() {
               className="px-4 py-2 bg-zinc-950 border border-white/10 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500/50 text-zinc-200 appearance-none min-w-[140px]"
             >
               <option value="All">All Statuses</option>
-              <option value="Open">Open</option>
-              <option value="Resolved">Resolved</option>
-              <option value="Closed">Closed</option>
+              {Object.entries(STATUS_LABELS).map(([key, label]) => (
+                <option key={key} value={key}>{label}</option>
+              ))}
             </select>
             <select 
               value={categoryFilter}
@@ -269,9 +224,9 @@ export default function Tickets() {
               className="px-4 py-2 bg-zinc-950 border border-white/10 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500/50 text-zinc-200 appearance-none min-w-[160px]"
             >
               <option value="All">All Categories</option>
-              <option value="General_Questions">General Questions</option>
-              <option value="Technical_Questions">Technical Questions</option>
-              <option value="Refund_Request">Refund Request</option>
+              {Object.entries(CATEGORY_LABELS).map(([key, label]) => (
+                <option key={key} value={key}>{label}</option>
+              ))}
             </select>
           </div>
         </div>
@@ -421,7 +376,6 @@ export default function Tickets() {
       
       {isModalOpen && (
         <TicketModal 
-          ticket={editingTicket} 
           onClose={() => setIsModalOpen(false)} 
           onSave={onSave} 
         />

@@ -1,3 +1,5 @@
+import { STATUS_LABELS } from '../lib/constants';
+
 export default function TicketStatusBadge({ status }: { status: 'Open' | 'Closed' | 'Resolved' }) {
   return (
     <span className={`inline-flex px-2.5 py-1 rounded-full text-xs font-bold border ${
@@ -5,7 +7,7 @@ export default function TicketStatusBadge({ status }: { status: 'Open' | 'Closed
       status === 'Resolved' ? 'bg-indigo-500/10 text-indigo-400 border-indigo-500/20' :
       'bg-zinc-500/10 text-zinc-400 border-zinc-500/20'
     }`}>
-      {status}
+      {STATUS_LABELS[status] || status}
     </span>
   );
 }
