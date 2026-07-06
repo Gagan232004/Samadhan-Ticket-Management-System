@@ -131,6 +131,12 @@ app.delete('/api/users/:id', async (req: Request, res: Response) => {
       where: { userId: id }
     });
 
+    // Unassign tickets assigned to this user
+    await prisma.ticket.updateMany({
+      where: { assignedToId: id },
+      data: { assignedToId: null }
+    });
+
     res.json({ success: true, message: 'User deleted successfully' });
   } catch (err: any) {
     console.error('Delete user error:', err);
