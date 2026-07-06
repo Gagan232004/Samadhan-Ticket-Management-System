@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import type { Ticket } from '../pages/Tickets';
+import type { Ticket } from '../types';
 import { CATEGORY_LABELS } from '../lib/constants';
 
 interface TicketModalProps {

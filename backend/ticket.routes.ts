@@ -86,6 +86,14 @@ router.get('/:id', async (req: Request, res: Response) => {
       include: {
         assignedTo: {
           select: { name: true, email: true }
+        },
+        replies: {
+          include: {
+            user: {
+              select: { id: true, name: true, image: true, role: true }
+            }
+          },
+          orderBy: { createdAt: 'asc' }
         }
       }
     });
@@ -161,6 +169,50 @@ router.patch('/:id', async (req: Request, res: Response) => {
   } catch (err: any) {
     console.error('Error updating ticket:', err);
     res.status(500).json({ error: 'Failed to update ticket' });
+  }
+});
+
+// POST add reply to ticket
+router.post('/:id/replies', async (req: Request, res: Response) => {
+  try {
+    const { body, senderType } = req.body;
+    const user = (req as any).user;
+    
+    if (!body || typeof body !== 'string' || body.trim() === '') {
+      res.status(400).json({ error: 'Reply body is required' });
+      return;
+    }
+
+    const ticket = await prisma.ticket.findUnique({ where: { id: req.params.id } });
+    if (!ticket) {
+      res.status(404).json({ error: 'Ticket not found' });
+      return;
+    }
+
+    const reply = await prisma.ticketReply.create({
+      data: {
+        body,
+        ticketId: ticket.id,
+        userId: user.id,
+        ...(senderType && { senderType })
+      },
+      include: {
+        user: {
+          select: { id: true, name: true, image: true, role: true }
+        }
+      }
+    });
+    
+    // Update ticket's updatedAt timestamp
+    await prisma.ticket.update({
+      where: { id: ticket.id },
+      data: { updatedAt: new Date() }
+    });
+    
+    res.status(201).json(reply);
+  } catch (err: any) {
+    console.error('Error creating reply:', err);
+    res.status(500).json({ error: 'Failed to create reply' });
   }
 });
 

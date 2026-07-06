@@ -52,3 +52,7 @@
 * **Saved Filters:** Save common search criteria for quick access.
 
 Also add admin login too.
+
+## 🛠️ Developer Notes & Utilities
+* **Ticket ID Parsing:** Use the `parseTicketId(id: string)` utility function located in `frontend/src/lib/utils.ts` whenever you need to display a short, formatted ticket ID on the frontend (e.g. slicing the CUID down to 8 characters).
+* **Component Architecture:** Avoid creating massive monolithic files (like placing all logic and UI of a complex page into a single `.tsx` file). Always break complex pages down into smaller, highly cohesive sub-components (e.g., `frontend/src/components/ticket-details/`) to keep the code modular, readable, and maintainable.

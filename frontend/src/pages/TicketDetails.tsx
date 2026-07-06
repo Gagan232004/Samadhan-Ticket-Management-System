@@ -1,8 +1,9 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
-import type { Ticket } from './Tickets';
-import TicketStatusBadge from '../components/TicketStatusBadge';
-import { CATEGORY_LABELS, STATUS_LABELS } from '../lib/constants';
+import type { Ticket } from '../types';
+import TicketDetail from '../components/ticket-details/TicketDetail';
+import TicketThread from '../components/ticket-details/TicketThread';
+import TicketReplyForm from '../components/ticket-details/TicketReplyForm';
 
 export default function TicketDetails() {
   const { id } = useParams<{ id: string }>();
@@ -12,29 +13,7 @@ export default function TicketDetails() {
   const [error, setError] = useState('');
   const [agents, setAgents] = useState<{id: string, name: string, email: string}[]>([]);
   const [isAssigning, setIsAssigning] = useState(false);
-  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
-  const [isStatusOpen, setIsStatusOpen] = useState(false);
-  const [isCategoryOpen, setIsCategoryOpen] = useState(false);
-  
-  const dropdownRef = useRef<HTMLDivElement>(null);
-  const statusRef = useRef<HTMLDivElement>(null);
-  const categoryRef = useRef<HTMLDivElement>(null);
-
-  useEffect(() => {
-    const handleClickOutside = (event: MouseEvent) => {
-      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
-        setIsDropdownOpen(false);
-      }
-      if (statusRef.current && !statusRef.current.contains(event.target as Node)) {
-        setIsStatusOpen(false);
-      }
-      if (categoryRef.current && !categoryRef.current.contains(event.target as Node)) {
-        setIsCategoryOpen(false);
-      }
-    };
-    document.addEventListener('mousedown', handleClickOutside);
-    return () => document.removeEventListener('mousedown', handleClickOutside);
-  }, []);
+  const [isReplying, setIsReplying] = useState(false);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -91,6 +70,32 @@ export default function TicketDetails() {
     }
   };
 
+  const handleReplySubmit = async (body: string) => {
+    setIsReplying(true);
+    try {
+      const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:5000';
+      const response = await fetch(`${apiUrl}/api/tickets/${id}/replies`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
+        body: JSON.stringify({ body, senderType: 'AGENT' })
+      });
+
+      if (!response.ok) throw new Error('Failed to submit reply');
+      
+      const newReply = await response.json();
+      setTicket(prev => prev ? {
+        ...prev,
+        replies: [...(prev.replies || []), newReply]
+      } : null);
+    } catch (err: any) {
+      alert(err.message);
+      throw err; // throw so the form doesn't clear if it fails
+    } finally {
+      setIsReplying(false);
+    }
+  };
+
   if (loading) {
     return (
       <div className="min-h-[calc(100vh-80px)] bg-zinc-950 flex items-center justify-center">
@@ -136,189 +141,21 @@ export default function TicketDetails() {
           Back to Tickets
         </Link>
 
-        <div className="bg-zinc-900/50 backdrop-blur-xl border border-white/5 rounded-3xl shadow-2xl ring-1 ring-white/10">
-          {/* Header Section */}
-          <div className="p-8 md:p-10 border-b border-white/5 flex flex-col md:flex-row justify-between items-start gap-8 relative z-50">
-            
-            {/* Title and Info (Left Side) */}
-            <div className="flex-1 mt-2">
-              <h1 className="text-3xl md:text-4xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-white to-zinc-400 mb-6 leading-tight">
-                {ticket.subject}
-              </h1>
+        <TicketDetail 
+          ticket={ticket} 
+          agents={agents} 
+          handleUpdate={handleUpdate} 
+          isAssigning={isAssigning} 
+        />
 
-              <div className="flex items-center gap-3 mb-5">
-                <div className="w-9 h-9 shrink-0 rounded-full bg-zinc-800 flex items-center justify-center text-zinc-300 font-bold text-sm shadow-inner border border-white/5">
-                  {(ticket.customerName || 'U').charAt(0).toUpperCase()}
-                </div>
-                <div className="flex flex-col">
-                  <span className="text-sm font-semibold text-zinc-200 leading-tight">{ticket.customerName || 'Unknown Customer'}</span>
-                  <span className="text-xs text-zinc-500">{ticket.customerEmail}</span>
-                </div>
-              </div>
-              
-              <div className="flex items-center flex-wrap gap-4 text-sm text-zinc-500 font-medium">
-                <span>ID: <span className="text-zinc-400 font-mono">{ticket.id.slice(0, 8)}</span></span>
-                <span className="w-1.5 h-1.5 rounded-full bg-zinc-800"></span>
-                <span>Opened {new Date(ticket.createdAt).toLocaleDateString(undefined, { year: 'numeric', month: 'short', day: 'numeric' })}</span>
-                <span className="w-1.5 h-1.5 rounded-full bg-zinc-800"></span>
-                <span>Updated {new Date(ticket.updatedAt).toLocaleDateString(undefined, { year: 'numeric', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' })}</span>
-              </div>
-            </div>
-
-            {/* Control Panel Dropdowns (Right Side) */}
-            <div className="w-full md:w-64 shrink-0 flex flex-col gap-4 relative">
-              
-              {/* Status Dropdown */}
-              <div className="relative" ref={statusRef}>
-                <div className="text-[10px] font-bold text-zinc-500 uppercase tracking-wider mb-2 ml-1">Status</div>
-                <button 
-                  onClick={() => setIsStatusOpen(!isStatusOpen)}
-                  disabled={isAssigning}
-                  className="w-full px-3 py-2 bg-zinc-900/80 backdrop-blur-xl border border-white/10 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500/50 text-zinc-200 text-sm flex justify-between items-center transition-all hover:bg-zinc-800/80 hover:border-indigo-500/50 group disabled:opacity-50 shadow-lg"
-                >
-                  <TicketStatusBadge status={ticket.status} />
-                  <div className="text-zinc-500 shrink-0 group-hover:text-indigo-400 transition-colors">
-                    {isAssigning ? (
-                      <div className="w-4 h-4 border-2 border-indigo-500 border-t-transparent rounded-full animate-spin"></div>
-                    ) : (
-                      <svg className={`w-4 h-4 transition-transform duration-300 ${isStatusOpen ? 'rotate-180' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7"></path></svg>
-                    )}
-                  </div>
-                </button>
-                {isStatusOpen && (
-                  <div className="absolute top-[calc(100%+8px)] right-0 w-full bg-zinc-900/95 backdrop-blur-3xl border border-white/10 rounded-xl shadow-[0_12px_40px_rgb(0,0,0,0.6)] overflow-hidden z-50 ring-1 ring-white/5 animate-in fade-in slide-in-from-top-2 duration-200">
-                    <div className="p-1 flex flex-col custom-scrollbar">
-                      {Object.keys(STATUS_LABELS).map(status => (
-                        <button
-                          key={status}
-                          onClick={() => {
-                            handleUpdate({ status: status as any });
-                            setIsStatusOpen(false);
-                          }}
-                          className={`w-full text-left px-3 py-2 rounded-lg text-sm flex items-center transition-all ${ticket.status === status ? 'bg-indigo-500/10 text-indigo-300' : 'text-zinc-400 hover:bg-white/5 hover:text-zinc-200'}`}
-                        >
-                          {STATUS_LABELS[status] || status}
-                        </button>
-                      ))}
-                    </div>
-                  </div>
-                )}
-              </div>
-
-              {/* Category Dropdown */}
-              <div className="relative" ref={categoryRef}>
-                <div className="text-[10px] font-bold text-zinc-500 uppercase tracking-wider mb-2 ml-1">Category</div>
-                <button 
-                  onClick={() => setIsCategoryOpen(!isCategoryOpen)}
-                  disabled={isAssigning}
-                  className="w-full px-3 py-2 bg-zinc-900/80 backdrop-blur-xl border border-white/10 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500/50 text-zinc-200 text-sm flex justify-between items-center transition-all hover:bg-zinc-800/80 hover:border-indigo-500/50 group disabled:opacity-50 shadow-lg"
-                >
-                  <span className="inline-flex px-2 py-1 rounded-full text-xs font-bold bg-zinc-800/80 text-zinc-300 border border-white/5">
-                    {CATEGORY_LABELS[ticket.category] || ticket.category}
-                  </span>
-                  <div className="text-zinc-500 shrink-0 group-hover:text-indigo-400 transition-colors">
-                    {isAssigning ? (
-                      <div className="w-4 h-4 border-2 border-indigo-500 border-t-transparent rounded-full animate-spin"></div>
-                    ) : (
-                      <svg className={`w-4 h-4 transition-transform duration-300 ${isCategoryOpen ? 'rotate-180' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7"></path></svg>
-                    )}
-                  </div>
-                </button>
-                {isCategoryOpen && (
-                  <div className="absolute top-[calc(100%+8px)] right-0 w-full bg-zinc-900/95 backdrop-blur-3xl border border-white/10 rounded-xl shadow-[0_12px_40px_rgb(0,0,0,0.6)] overflow-hidden z-50 ring-1 ring-white/5 animate-in fade-in slide-in-from-top-2 duration-200">
-                    <div className="p-1 flex flex-col max-h-60 overflow-y-auto custom-scrollbar">
-                      {Object.keys(CATEGORY_LABELS).map(cat => (
-                        <button
-                          key={cat}
-                          onClick={() => {
-                            handleUpdate({ category: cat as any });
-                            setIsCategoryOpen(false);
-                          }}
-                          className={`w-full text-left px-3 py-2 rounded-lg text-sm flex items-center transition-all ${ticket.category === cat ? 'bg-indigo-500/10 text-indigo-300' : 'text-zinc-400 hover:bg-white/5 hover:text-zinc-200'}`}
-                        >
-                          {CATEGORY_LABELS[cat] || cat}
-                        </button>
-                      ))}
-                    </div>
-                  </div>
-                )}
-              </div>
-
-              {/* Assigned To Dropdown */}
-              <div className="relative" ref={dropdownRef}>
-                <div className="text-[10px] font-bold text-zinc-500 uppercase tracking-wider mb-2 ml-1">Assigned To</div>
-                <button
-                  onClick={() => !isAssigning && setIsDropdownOpen(!isDropdownOpen)}
-                  disabled={isAssigning}
-                  className="w-full px-3 py-2 bg-zinc-900/80 backdrop-blur-xl border border-white/10 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500/50 text-zinc-200 text-sm flex justify-between items-center transition-all hover:bg-zinc-800/80 hover:border-indigo-500/50 group disabled:opacity-50 shadow-lg"
-                >
-                  <div className="flex items-center gap-2.5 truncate pr-2">
-                    <div className="w-6 h-6 shrink-0 rounded-full bg-gradient-to-tr from-indigo-500 to-purple-600 flex items-center justify-center text-[10px] font-extrabold text-white shadow-inner border border-white/10">
-                      {ticket.assignedTo ? ticket.assignedTo.name.charAt(0).toUpperCase() : '?'}
-                    </div>
-                    <div className="flex flex-col items-start truncate">
-                      <span className="font-semibold tracking-wide text-xs truncate w-full">{ticket.assignedTo ? ticket.assignedTo.name : 'Unassigned'}</span>
-                    </div>
-                  </div>
-                  
-                  <div className="text-zinc-500 shrink-0 group-hover:text-indigo-400 transition-colors">
-                    {isAssigning ? (
-                      <div className="w-4 h-4 border-2 border-indigo-500 border-t-transparent rounded-full animate-spin"></div>
-                    ) : (
-                      <svg className={`w-4 h-4 transition-transform duration-300 ${isDropdownOpen ? 'rotate-180' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7"></path></svg>
-                    )}
-                  </div>
-                </button>
-
-                {isDropdownOpen && (
-                  <div className="absolute top-[calc(100%+8px)] right-0 w-full bg-zinc-900/95 backdrop-blur-3xl border border-white/10 rounded-xl shadow-[0_12px_40px_rgb(0,0,0,0.6)] overflow-hidden z-50 ring-1 ring-white/5 animate-in fade-in slide-in-from-top-2 duration-200">
-                    <div className="max-h-60 overflow-y-auto p-1 custom-scrollbar">
-                      <button
-                        onClick={() => {
-                          handleUpdate({ assignedToId: null as any });
-                          setIsDropdownOpen(false);
-                        }}
-                        className={`w-full text-left px-3 py-2 rounded-lg text-sm flex items-center gap-2.5 transition-all ${!ticket.assignedToId ? 'bg-indigo-500/10 text-indigo-300' : 'text-zinc-400 hover:bg-white/5 hover:text-zinc-200'}`}
-                      >
-                        <div className={`w-6 h-6 shrink-0 rounded-full flex items-center justify-center text-[10px] font-extrabold shadow-inner border ${!ticket.assignedToId ? 'bg-indigo-500/20 text-indigo-400 border-indigo-500/30' : 'bg-zinc-800 text-zinc-500 border-white/5'}`}>
-                          ?
-                        </div>
-                        <span className="font-semibold text-xs">Unassigned</span>
-                      </button>
-                      
-                      {agents.map(agent => (
-                        <button
-                          key={agent.id}
-                          onClick={() => {
-                            handleUpdate({ assignedToId: agent.id });
-                            setIsDropdownOpen(false);
-                          }}
-                          className={`w-full text-left px-3 py-2 rounded-lg text-sm flex items-center gap-2.5 transition-all mt-1 ${ticket.assignedToId === agent.id ? 'bg-indigo-500/10 text-indigo-300' : 'text-zinc-400 hover:bg-white/5 hover:text-zinc-200'}`}
-                        >
-                          <div className={`w-6 h-6 shrink-0 rounded-full flex items-center justify-center text-[10px] font-extrabold shadow-inner border ${ticket.assignedToId === agent.id ? 'bg-gradient-to-tr from-indigo-500 to-purple-600 text-white border-white/10' : 'bg-zinc-800 text-zinc-300 border-white/5 group-hover:bg-zinc-700'}`}>
-                            {agent.name.charAt(0).toUpperCase()}
-                          </div>
-                          <div className="flex flex-col truncate">
-                            <span className="font-semibold text-xs truncate">{agent.name}</span>
-                          </div>
-                        </button>
-                      ))}
-                    </div>
-                  </div>
-                )}
-              </div>
-            </div>
-          </div>
-
-          {/* Main Content (Body) */}
-          <div className="p-8 md:p-10">
-            <h3 className="text-sm font-bold text-zinc-500 uppercase tracking-wider mb-4">Description</h3>
-            <div className="prose prose-invert prose-zinc max-w-none">
-              <p className="text-zinc-300 whitespace-pre-wrap leading-relaxed text-[15px]">
-                {ticket.body}
-              </p>
-            </div>
-          </div>
+        <div className="bg-zinc-900/50 backdrop-blur-xl border border-white/5 rounded-3xl shadow-2xl ring-1 ring-white/10 mt-6 p-8 md:p-10">
+          <h3 className="text-sm font-bold text-zinc-500 uppercase tracking-wider mb-6 flex items-center gap-2">
+            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"></path></svg>
+            Thread ({ticket.replies?.length || 0})
+          </h3>
+          
+          <TicketThread ticket={ticket} />
+          <TicketReplyForm onSubmit={handleReplySubmit} isReplying={isReplying} />
         </div>
       </div>
     </div>

@@ -12,19 +12,7 @@ import {
   type SortingState
 } from '@tanstack/react-table';
 
-export interface Ticket {
-  id: string;
-  subject: string;
-  body: string;
-  status: 'Open' | 'Closed' | 'Resolved';
-  category: 'General_Questions' | 'Technical_Questions' | 'Refund_Request' | 'Others';
-  customerEmail: string;
-  customerName: string | null;
-  assignedToId: string | null;
-  assignedTo?: { name: string; email: string } | null;
-  createdAt: string;
-  updatedAt: string;
-}
+import type { Ticket } from '../types';
 
 export default function Tickets() {
   const { data: session } = useSession();
@@ -130,7 +118,7 @@ export default function Tickets() {
     }),
     columnHelper.accessor('status', {
       header: 'Status',
-      cell: info => <TicketStatusBadge status={info.getValue()} />
+      cell: info => <TicketStatusBadge ticket={info.row.original} />
     }),
     columnHelper.accessor('category', {
       header: 'Category',

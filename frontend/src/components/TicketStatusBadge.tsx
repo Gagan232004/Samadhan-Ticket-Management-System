@@ -1,6 +1,8 @@
-import { STATUS_LABELS } from '../lib/constants';
+import { CATEGORY_LABELS, STATUS_LABELS } from '../lib/constants';
+import type { Ticket } from '../types';
 
-export default function TicketStatusBadge({ status }: { status: 'Open' | 'Closed' | 'Resolved' }) {
+export default function TicketStatusBadge({ ticket }: { ticket: Ticket }) {
+  const status = ticket.status;
   return (
     <span className={`inline-flex px-2.5 py-1 rounded-full text-xs font-bold border ${
       status === 'Open' ? 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20' :
