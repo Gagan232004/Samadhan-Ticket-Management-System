@@ -1,6 +1,8 @@
 import { useState, useEffect } from 'react';
+import { Link } from 'react-router-dom';
 import { useSession } from '../lib/auth-client';
 import TicketModal from '../components/TicketModal';
+import TicketStatusBadge from '../components/TicketStatusBadge';
 import {
   useReactTable,
   getCoreRowModel,
@@ -133,7 +135,9 @@ export default function Tickets() {
       header: 'Subject',
       cell: info => (
         <>
-          <div className="text-zinc-200 font-semibold">{info.getValue()}</div>
+          <Link to={`/tickets/${info.row.original.id}`} className="text-zinc-200 font-semibold hover:text-indigo-400 hover:underline transition-colors block">
+            {info.getValue()}
+          </Link>
           <div className="text-xs text-zinc-500 mt-1 truncate max-w-xs">{info.row.original.body}</div>
         </>
       ),
@@ -149,18 +153,7 @@ export default function Tickets() {
     }),
     columnHelper.accessor('status', {
       header: 'Status',
-      cell: info => {
-        const status = info.getValue();
-        return (
-          <span className={`inline-flex px-2.5 py-1 rounded-full text-xs font-bold border ${
-            status === 'Open' ? 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20' :
-            status === 'Resolved' ? 'bg-indigo-500/10 text-indigo-400 border-indigo-500/20' :
-            'bg-zinc-500/10 text-zinc-400 border-zinc-500/20'
-          }`}>
-            {status}
-          </span>
-        );
-      }
+      cell: info => <TicketStatusBadge status={info.getValue()} />
     }),
     columnHelper.accessor('category', {
       header: 'Category',

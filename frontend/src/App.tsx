@@ -6,6 +6,7 @@ import Users from './pages/Users';
 import ProtectedRoute from './components/ProtectedRoute';
 
 import Tickets from './pages/Tickets';
+import TicketDetails from './pages/TicketDetails';
 
 function App() {
   return (
@@ -27,6 +28,14 @@ function App() {
           element={
             <ProtectedRoute>
               <Tickets />
+            </ProtectedRoute>
+          } 
+        />
+        <Route 
+          path="/tickets/:id" 
+          element={
+            <ProtectedRoute>
+              <TicketDetails />
             </ProtectedRoute>
           } 
         />
