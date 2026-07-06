@@ -18,7 +18,11 @@ const mockPrisma = {
     findFirst: mock()
   },
   ticket: {
-    update: mock()
+    update: mock(),
+    findUnique: mock()
+  },
+  ticketReply: {
+    create: mock()
   }
 };
 
@@ -96,6 +100,81 @@ describe("Ticket Routes - Assignment Feature", () => {
             select: { name: true, email: true }
           }
         }
+      })
+    );
+  });
+});
+
+describe("Ticket Routes - Replies Feature", () => {
+  beforeEach(() => {
+    mockPrisma.ticket.findUnique.mockClear();
+    mockPrisma.ticket.update.mockClear();
+    mockPrisma.ticketReply.create.mockClear();
+  });
+
+  it("should return 400 if reply body is missing", async () => {
+    const response = await request(app)
+      .post("/api/tickets/123/replies")
+      .send({ senderType: "AGENT" });
+
+    expect(response.status).toBe(400);
+    expect(response.body).toEqual({ error: "Reply body is required" });
+  });
+
+  it("should return 404 if ticket is not found", async () => {
+    mockPrisma.ticket.findUnique.mockResolvedValue(null);
+
+    const response = await request(app)
+      .post("/api/tickets/123/replies")
+      .send({ body: "This is a reply", senderType: "AGENT" });
+
+    expect(response.status).toBe(404);
+    expect(response.body).toEqual({ error: "Ticket not found" });
+    
+    expect(mockPrisma.ticket.findUnique).toHaveBeenCalledWith({
+      where: { id: "123" }
+    });
+  });
+
+  it("should create a reply and update the ticket's updatedAt timestamp", async () => {
+    mockPrisma.ticket.findUnique.mockResolvedValue({ id: "123" });
+    
+    const mockReply = {
+      id: "reply_1",
+      body: "This is a reply",
+      ticketId: "123",
+      userId: "admin_id",
+      senderType: "AGENT",
+      user: { id: "admin_id", name: "Admin" }
+    };
+    
+    mockPrisma.ticketReply.create.mockResolvedValue(mockReply);
+    mockPrisma.ticket.update.mockResolvedValue({ id: "123" });
+
+    const response = await request(app)
+      .post("/api/tickets/123/replies")
+      .send({ body: "This is a reply", senderType: "AGENT" });
+
+    expect(response.status).toBe(201);
+    expect(response.body).toEqual(mockReply);
+
+    // Verify reply creation
+    expect(mockPrisma.ticketReply.create).toHaveBeenCalledWith(
+      expect.objectContaining({
+        data: {
+          body: "This is a reply",
+          ticketId: "123",
+          userId: "admin_id",
+          senderType: "AGENT"
+        }
+      })
+    );
+
+    // Verify ticket updatedAt was updated
+    expect(mockPrisma.ticket.update).toHaveBeenCalledWith(
+      expect.objectContaining({
+        where: { id: "123" },
+        data: expect.objectContaining({ updatedAt: expect.any(Date) })
       })
     );
   });

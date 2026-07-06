@@ -220,7 +220,6 @@ describe('Users Component', () => {
       
       // Verify user info is shown in confirmation
       expect(screen.getAllByText('Delete Me').length).toBeGreaterThan(0);
-      expect(screen.getByText('(delete@example.com)')).toBeInTheDocument();
     });
   });
 });

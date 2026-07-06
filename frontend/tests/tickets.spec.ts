@@ -24,8 +24,8 @@ class TicketsPage {
     await this.customerNameInput.fill(name);
     await this.customerEmailInput.fill(email);
     
-    // Select category (assuming native select)
-    await this.page.locator('select').first().selectOption(category);
+    // Select category in the modal dialog
+    await this.page.getByRole('dialog').locator('select').first().selectOption(category);
     
     await this.bodyTextarea.fill(body);
     
@@ -100,5 +100,43 @@ test.describe('Ticket Management CRUD', () => {
     // Since the table sorts by newest first, the Newer Ticket should be in the first row
     expect(firstRowText).toContain(subject2);
     expect(secondRowText).toContain(subject1);
+  });
+
+  test('should allow a user to reply to a ticket and see the reply in the thread', async ({ page }) => {
+    const ticketsPage = new TicketsPage(page);
+    await ticketsPage.goto();
+
+    const uniqueId = Date.now();
+    const subject = `Reply Test Ticket ${uniqueId}`;
+    
+    // Create ticket
+    await ticketsPage.createTicket(
+      subject,
+      'Charlie',
+      'charlie@example.com',
+      'I need help with my account.',
+      'General_Questions'
+    );
+
+    // Click on the newly created ticket in the table to open its details page
+    await page.locator('td').filter({ hasText: subject }).click();
+
+    // Verify we are on the ticket details page by checking the subject
+    await expect(page.locator('h1', { hasText: subject })).toBeVisible();
+
+    // Find the reply form
+    const replyTextarea = page.getByPlaceholder(/write a reply.../i);
+    await replyTextarea.fill('This is a test reply from the admin.');
+
+    // Submit the reply
+    const sendReplyBtn = page.getByRole('button', { name: /send reply/i });
+    await sendReplyBtn.click();
+
+    // Verify the reply appears in the thread
+    await expect(page.getByText('This is a test reply from the admin.')).toBeVisible();
+    
+    // The admin's name should appear, which is 'Admin' based on our setup (or the mocked user)
+    // We can just verify 'AGENT' role badge appears
+    await expect(page.getByText('AGENT')).toBeVisible();
   });
 });
