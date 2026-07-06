@@ -175,7 +175,7 @@ router.patch('/:id', async (req: Request, res: Response) => {
 // POST add reply to ticket
 router.post('/:id/replies', async (req: Request, res: Response) => {
   try {
-    const { body, senderType } = req.body;
+    const { body, bodyHtml, senderType } = req.body;
     const user = (req as any).user;
     
     if (!body || typeof body !== 'string' || body.trim() === '') {
@@ -192,6 +192,7 @@ router.post('/:id/replies', async (req: Request, res: Response) => {
     const reply = await prisma.ticketReply.create({
       data: {
         body,
+        ...(bodyHtml && { bodyHtml }),
         ticketId: ticket.id,
         userId: user.id,
         ...(senderType && { senderType })

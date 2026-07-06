@@ -1,4 +1,5 @@
 import type { Ticket } from '../../types';
+import DOMPurify from 'dompurify';
 
 interface TicketThreadProps {
   ticket: Ticket;
@@ -31,9 +32,10 @@ export default function TicketThread({ ticket }: TicketThreadProps) {
               </span>
             </div>
             <div className="prose prose-invert prose-zinc max-w-none">
-              <p className={`whitespace-pre-wrap leading-relaxed text-sm ${reply.senderType === 'CUSTOMER' ? 'text-zinc-300' : 'text-indigo-100/90'}`}>
-                {reply.body}
-              </p>
+              <p 
+                className={`whitespace-pre-wrap leading-relaxed text-sm ${reply.senderType === 'CUSTOMER' ? 'text-zinc-300' : 'text-indigo-100/90'}`}
+                dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(reply.bodyHtml || reply.body) }}
+              />
             </div>
           </div>
         </div>
