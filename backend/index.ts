@@ -5,6 +5,7 @@ import { toNodeHandler, fromNodeHeaders } from "better-auth/node";
 import { auth } from "./auth.js";
 import { prisma } from "./db.js";
 import { createUserSchema } from '@ticketly/core';
+import { startJobs } from './jobs.js';
 
 dotenv.config();
 
@@ -157,9 +158,15 @@ app.use((err: any, req: Request, res: Response, next: NextFunction) => {
 });
 
 // Start Server
-app.listen(PORT, () => {
+app.listen(PORT, async () => {
   console.log(`🚀 Server is running on http://localhost:${PORT}`);
   console.log(`📦 Shared core schema loaded successfully:`, !!createUserSchema);
+  
+  try {
+    await startJobs();
+  } catch (e) {
+    console.error('Failed to start background jobs', e);
+  }
 });
 
 

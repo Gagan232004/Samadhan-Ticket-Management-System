@@ -1,8 +1,6 @@
 import { Router, type Request, type Response } from 'express';
 import { prisma } from './db.js';
-import { generateObject } from 'ai';
-import { google } from '@ai-sdk/google';
-import { z } from 'zod';
+import { boss } from './queue.js';
 
 const router = Router();
 
@@ -54,44 +52,13 @@ router.post('/tickets', async (req: Request, res: Response) => {
       ticketId: ticket.id
     });
 
-    // Asynchronously classify the ticket in a non-blocking fashion
-    classifyTicket(ticket.id, subject, body).catch(err => console.error('Background classification failed:', err));
+    // Asynchronously classify the ticket in a non-blocking fashion using pg-boss
+    boss.send('classify-ticket', { ticketId: ticket.id, subject, body })
+      .catch(err => console.error('Failed to queue webhook classification job:', err));
   } catch (err: any) {
     console.error('Error processing webhook ticket creation:', err);
     res.status(500).json({ error: 'Failed to process webhook' });
   }
 });
-
-async function classifyTicket(ticketId: string, subject: string, body: string) {
-  try {
-    const { object } = await generateObject({
-      model: google('gemini-2.5-flash'),
-      schema: z.object({
-        category: z.enum(['General_Questions', 'Technical_Questions', 'Refund_Request', 'Others'])
-      }),
-      prompt: `Classify the following support ticket into one of the allowed categories.
-      
-Ticket Subject: ${subject}
-Ticket Body: ${body}
-
-Allowed Categories:
-- General_Questions (account issues, inquiries, pricing, etc.)
-- Technical_Questions (bugs, errors, how-to use features, platform down)
-- Refund_Request (asking for money back, disputing charges, cancellation)
-- Others (anything else that does not fit)
-`
-    });
-
-    if (object.category) {
-      await prisma.ticket.update({
-        where: { id: ticketId },
-        data: { category: object.category }
-      });
-      console.log(`Automatically classified webhook ticket ${ticketId} as ${object.category}`);
-    }
-  } catch (error) {
-    console.error(`Failed to automatically classify webhook ticket ${ticketId}:`, error);
-  }
-}
 
 export default router;
