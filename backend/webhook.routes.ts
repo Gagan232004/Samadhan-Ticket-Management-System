@@ -42,7 +42,7 @@ router.post('/tickets', async (req: Request, res: Response) => {
         category: category || 'General_Questions',
         customerEmail,
         customerName: customerName || null,
-        status: 'Open' // Default status for new incoming tickets
+        status: 'New'
       }
     });
     
@@ -53,7 +53,7 @@ router.post('/tickets', async (req: Request, res: Response) => {
     });
 
     // Asynchronously classify the ticket in a non-blocking fashion using pg-boss
-    boss.send('classify-ticket', { ticketId: ticket.id, subject, body })
+    boss.send('classify-ticket', { ticketId: ticket.id, subject, body, customerName })
       .catch(err => console.error('Failed to queue webhook classification job:', err));
   } catch (err: any) {
     console.error('Error processing webhook ticket creation:', err);

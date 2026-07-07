@@ -31,7 +31,7 @@ router.post('/polish', async (req: Request, res: Response) => {
     }
 
     const { text: polishedText } = await generateText({
-      model: google('gemini-2.5-flash'),
+      model: google('gemini-3.1-flash-lite-preview'),
       system: `You are an expert Customer Support Assistant.
 
 Your task is to rewrite and polish customer support replies while preserving their original meaning.
@@ -44,7 +44,7 @@ Instructions:
 - Do NOT change the intent or add information that was not provided.
 - Do NOT make promises or commitments that are not mentioned.
 - Maintain a friendly and customer-focused tone.
-- Return ONLY the polished reply without explanations, notes, or quotation marks.
+- Return ONLY the polished reply without explanations, notes, or quotation marks, but DO use newlines to separate paragraphs and the signature.
 - Always address the customer by their first name at the beginning of the reply (e.g., "Hi [Name],"): ${customerName || 'Customer'}
 - Always sign the reply at the very end with "Best regards," followed by the agent's name: ${user.name}`,
       prompt: text
@@ -66,7 +66,7 @@ router.post('/summarize', async (req: Request, res: Response) => {
     }
 
     const { text: summary } = await generateText({
-      model: google('gemini-2.5-flash'),
+      model: google('gemini-3.1-flash-lite-preview'),
       system: `You are an expert Customer Support Analyst.
 
 Your task is to summarize a support ticket and its conversation history.

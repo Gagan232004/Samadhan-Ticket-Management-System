@@ -6,6 +6,8 @@ export const CATEGORY_LABELS: Record<string, string> = {
 };
 
 export const STATUS_LABELS: Record<string, string> = {
+  New: 'New',
+  Processing: 'Processing',
   Open: 'Open',
   Resolved: 'Resolved',
   Closed: 'Closed'

@@ -45,6 +45,8 @@ router.get('/', async (req: Request, res: Response) => {
     }
     if (status && status !== 'All') {
       where.status = status;
+    } else {
+      where.status = { notIn: ['New', 'Processing'] };
     }
     if (category && category !== 'All') {
       where.category = category;
@@ -188,7 +190,7 @@ router.post('/', async (req: Request, res: Response) => {
     res.status(201).json(ticket);
 
     // Asynchronously classify the ticket in a non-blocking fashion using pg-boss
-    boss.send('classify-ticket', { ticketId: ticket.id, subject, body })
+    boss.send('classify-ticket', { ticketId: ticket.id, subject, body, customerName })
       .catch(err => console.error('Failed to queue classification job:', err));
   } catch (err: any) {
     console.error('Error creating ticket:', err);
