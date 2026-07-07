@@ -57,4 +57,35 @@ Instructions:
   }
 });
 
+router.post('/summarize', async (req: Request, res: Response) => {
+  try {
+    const { ticketData } = req.body;
+    if (!ticketData) {
+      res.status(400).json({ error: 'Ticket data is required' });
+      return;
+    }
+
+    const { text: summary } = await generateText({
+      model: google('gemini-2.5-flash'),
+      system: `You are an expert Customer Support Analyst.
+
+Your task is to summarize a support ticket and its conversation history.
+
+Instructions:
+- Provide a concise summary of the main issue.
+- Outline the current status or what has been done so far.
+- Keep the summary professional, clear, and easy to read.
+- Use a few bullet points if there are multiple steps taken (using standard dashes).
+- Do NOT use Markdown formatting such as asterisks (**) for bolding. Output plain text only.
+- Do NOT include any filler text. Return ONLY the summary.`,
+      prompt: `Ticket Subject: ${ticketData.subject}\nTicket Body: ${ticketData.body}\n\nConversation History:\n${ticketData.replies?.map((r: any) => `[${r.senderType}] ${r.senderType === 'CUSTOMER' ? ticketData.customerName || 'Customer' : r.sender?.name || 'Agent'}: ${r.body}`).join('\n\n') || 'No replies yet.'}`
+    });
+
+    res.json({ summary });
+  } catch (err: any) {
+    console.error('Error summarizing ticket:', err);
+    res.status(500).json({ error: 'Failed to summarize ticket' });
+  }
+});
+
 export default router;
