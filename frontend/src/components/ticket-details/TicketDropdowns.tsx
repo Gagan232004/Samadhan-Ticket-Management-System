@@ -2,10 +2,11 @@ import { useState, useEffect, useRef } from 'react';
 import type { Ticket } from '../../types';
 import TicketStatusBadge from '../TicketStatusBadge';
 import { CATEGORY_LABELS, STATUS_LABELS } from '../../lib/constants';
+import type { User } from '@prisma/client';
 
 interface TicketDropdownsProps {
   ticket: Ticket;
-  agents: {id: string, name: string, email: string}[];
+  agents: Pick<User, 'id' | 'name' | 'email'>[];
   handleUpdate: (payload: Partial<Ticket>) => Promise<void>;
   isAssigning: boolean;
 }

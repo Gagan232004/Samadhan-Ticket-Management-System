@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
+import type { User } from '@prisma/client';
 import type { Ticket } from '../types';
 import TicketDetail from '../components/ticket-details/TicketDetail';
 import TicketThread from '../components/ticket-details/TicketThread';
@@ -14,7 +15,7 @@ export default function TicketDetails() {
   const [ticket, setTicket] = useState<Ticket | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
-  const [agents, setAgents] = useState<{id: string, name: string, email: string}[]>([]);
+  const [agents, setAgents] = useState<Pick<User, 'id' | 'name' | 'email'>[]>([]);
   const [isAssigning, setIsAssigning] = useState(false);
   const [isReplying, setIsReplying] = useState(false);
 

@@ -4,10 +4,11 @@ import DOMPurify from 'dompurify';
 import TicketHeader from './TicketHeader';
 import TicketDropdowns from './TicketDropdowns';
 import { toast } from 'sonner';
+import type { User } from '@prisma/client';
 
 interface TicketDetailProps {
   ticket: Ticket;
-  agents: {id: string, name: string, email: string}[];
+  agents: Pick<User, 'id' | 'name' | 'email'>[];
   handleUpdate: (payload: Partial<Ticket>) => Promise<void>;
   isAssigning: boolean;
 }

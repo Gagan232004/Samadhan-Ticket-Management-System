@@ -1,12 +1,6 @@
-export interface Ticket {
-  id: string;
-  subject: string;
-  body: string;
-  status: 'Open' | 'Closed' | 'Resolved';
-  category: 'General_Questions' | 'Technical_Questions' | 'Refund_Request' | 'Others';
-  customerEmail: string;
-  customerName: string | null;
-  assignedToId: string | null;
+import type { Ticket as PrismaTicket } from '@prisma/client';
+
+export interface Ticket extends Omit<PrismaTicket, 'createdAt' | 'updatedAt'> {
   assignedTo?: { name: string; email: string } | null;
   replies?: any[];
   createdAt: string;
