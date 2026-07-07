@@ -1,4 +1,4 @@
-import express, { Request, Response, NextFunction } from 'express';
+import express, { type Request, type Response, type NextFunction } from 'express';
 import cors from 'cors';
 import dotenv from 'dotenv';
 import { toNodeHandler, fromNodeHeaders } from "better-auth/node";
@@ -31,6 +31,12 @@ app.use('/api/tickets', ticketRoutes);
 
 import webhookRoutes from './webhook.routes.js';
 app.use('/api/webhooks', webhookRoutes);
+
+import notificationRoutes from './notification.routes.js';
+app.use('/api/notifications', notificationRoutes);
+
+import aiRoutes from './ai.routes.js';
+app.use('/api/ai', aiRoutes);
 
 // Agents List Route (Accessible to all authenticated users)
 app.get('/api/users/agents', async (req: Request, res: Response) => {
@@ -155,3 +161,6 @@ app.listen(PORT, () => {
   console.log(`🚀 Server is running on http://localhost:${PORT}`);
   console.log(`📦 Shared core schema loaded successfully:`, !!createUserSchema);
 });
+
+
+

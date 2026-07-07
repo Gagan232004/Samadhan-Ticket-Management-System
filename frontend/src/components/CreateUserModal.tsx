@@ -3,6 +3,7 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { X, Loader2, UserPlus } from 'lucide-react';
 import { authClient } from '../lib/auth-client';
+import { toast } from 'sonner';
 
 import { createUserSchema, type CreateUserInput as FormData } from '@ticketly/core';
 
@@ -52,6 +53,11 @@ export function CreateUserModal({ isOpen, onClose, onSuccess }: CreateUserModalP
       return;
     }
     
+    toast.success('User successfully created', {
+      description: `${data.name} (${data.role}) has been added to the system.`,
+      className: 'bg-white/95 backdrop-blur-3xl border border-green-100 text-green-950 font-bold shadow-[0_8px_30px_rgb(0,0,0,0.08)] !px-6 !py-4 rounded-2xl'
+    });
+
     reset();
     onSuccess();
   };

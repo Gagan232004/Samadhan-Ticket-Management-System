@@ -49,20 +49,62 @@ router.get('/', async (req: Request, res: Response) => {
       where.category = category;
     }
 
-    const [tickets, totalCount] = await Promise.all([
-      prisma.ticket.findMany({
+    const user = (req as any).user;
+
+    const myTicketsWhere = { ...where, assignedToId: user.id };
+    const otherTicketsWhere = { 
+      AND: [
         where,
-        orderBy: { [sortField]: sortOrder },
-        include: {
-          assignedTo: {
-            select: { name: true, email: true }
-          }
-        },
-        skip,
-        take: pageSize
-      }),
-      prisma.ticket.count({ where })
+        {
+          OR: [
+            { assignedToId: { not: user.id } },
+            { assignedToId: null }
+          ]
+        }
+      ]
+    };
+
+    const [myTicketsCount, otherTicketsCount] = await Promise.all([
+      prisma.ticket.count({ where: myTicketsWhere }),
+      prisma.ticket.count({ where: otherTicketsWhere })
     ]);
+    const totalCount = myTicketsCount + otherTicketsCount;
+
+    let tickets: any[] = [];
+
+    if (skip < myTicketsCount) {
+      const takeMy = Math.min(pageSize, myTicketsCount - skip);
+      const myTickets = await prisma.ticket.findMany({
+        where: myTicketsWhere,
+        orderBy: { [sortField]: sortOrder },
+        include: { assignedTo: { select: { name: true, email: true } } },
+        skip,
+        take: takeMy
+      });
+      tickets.push(...myTickets);
+      
+      const takeOther = pageSize - takeMy;
+      if (takeOther > 0) {
+        const otherTickets = await prisma.ticket.findMany({
+          where: otherTicketsWhere,
+          orderBy: { [sortField]: sortOrder },
+          include: { assignedTo: { select: { name: true, email: true } } },
+          skip: 0,
+          take: takeOther
+        });
+        tickets.push(...otherTickets);
+      }
+    } else {
+      const skipOther = skip - myTicketsCount;
+      const otherTickets = await prisma.ticket.findMany({
+        where: otherTicketsWhere,
+        orderBy: { [sortField]: sortOrder },
+        include: { assignedTo: { select: { name: true, email: true } } },
+        skip: skipOther,
+        take: pageSize
+      });
+      tickets.push(...otherTickets);
+    }
 
     const totalPages = Math.ceil(totalCount / pageSize);
 
@@ -128,6 +170,20 @@ router.post('/', async (req: Request, res: Response) => {
       }
     });
     
+    // Notify all agents and admins about new ticket
+    const agentsAndAdmins = await prisma.user.findMany({
+      where: { role: { in: ['admin', 'agent'] }, deletedAt: null }
+    });
+    
+    if (agentsAndAdmins.length > 0) {
+      await prisma.notification.createMany({
+        data: agentsAndAdmins.map(u => ({
+          userId: u.id,
+          message: `New ticket created: ${subject}`
+        }))
+      });
+    }
+
     res.status(201).json(ticket);
   } catch (err: any) {
     console.error('Error creating ticket:', err);
@@ -151,6 +207,10 @@ router.patch('/:id', async (req: Request, res: Response) => {
       }
     }
 
+    const existingTicket = await prisma.ticket.findUnique({
+      where: { id: req.params.id }
+    });
+
     const ticket = await prisma.ticket.update({
       where: { id: req.params.id },
       data: {
@@ -165,6 +225,50 @@ router.patch('/:id', async (req: Request, res: Response) => {
       }
     });
     
+    // Notifications for assignment
+    if (assignedToId && existingTicket?.assignedToId !== assignedToId && ticket.assignedTo) {
+      // Notify the assigned agent
+      await prisma.notification.create({
+        data: {
+          userId: assignedToId,
+          message: `You have been assigned a new ticket: ${ticket.subject}`
+        }
+      });
+      // Notify admins (excluding the one performing the action)
+      const admins = await prisma.user.findMany({ 
+        where: { role: 'admin', deletedAt: null, id: { not: (req as any).user.id } } 
+      });
+      if (admins.length > 0) {
+        await prisma.notification.createMany({
+          data: admins.map(a => ({
+            userId: a.id,
+            message: `Ticket "${ticket.subject}" was assigned to ${ticket.assignedTo?.name}`
+          }))
+        });
+      }
+    }
+
+    // Notifications for status change
+    if (status && existingTicket?.status !== status) {
+       const admins = await prisma.user.findMany({ 
+         where: { role: 'admin', deletedAt: null, id: { not: (req as any).user.id } } 
+       });
+       const notifyUserIds = new Set(admins.map(a => a.id));
+       
+       if (ticket.assignedToId && ticket.assignedToId !== (req as any).user.id) {
+         notifyUserIds.add(ticket.assignedToId);
+       }
+       
+       if (notifyUserIds.size > 0) {
+         await prisma.notification.createMany({
+           data: Array.from(notifyUserIds).map(uid => ({
+             userId: uid,
+             message: `Ticket "${ticket.subject}" status changed to ${status}`
+           }))
+         });
+       }
+    }
+
     res.json(ticket);
   } catch (err: any) {
     console.error('Error updating ticket:', err);

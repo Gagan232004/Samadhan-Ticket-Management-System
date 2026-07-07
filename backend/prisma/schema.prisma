@@ -49,6 +49,7 @@ model User {
 
   tickets       Ticket[]  @relation("UserTickets")
   replies       TicketReply[]
+  notifications Notification[]
 
   @@unique([email])
   @@map("user")
@@ -141,4 +142,16 @@ model TicketReply {
   user      User?    @relation(fields: [userId], references: [id], onDelete: SetNull)
 
   @@map("ticket_reply")
+}
+
+model Notification {
+  id        String   @id @default(cuid())
+  message   String
+  isRead    Boolean  @default(false)
+  createdAt DateTime @default(now())
+
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("notification")
 }

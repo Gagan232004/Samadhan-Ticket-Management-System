@@ -4,10 +4,13 @@ import type { Ticket } from '../types';
 import TicketDetail from '../components/ticket-details/TicketDetail';
 import TicketThread from '../components/ticket-details/TicketThread';
 import TicketReplyForm from '../components/ticket-details/TicketReplyForm';
+import { toast } from 'sonner';
+import { useSession } from '../lib/auth-client';
 
 export default function TicketDetails() {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
+  const { data: session } = useSession();
   const [ticket, setTicket] = useState<Ticket | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
@@ -63,6 +66,29 @@ export default function TicketDetails() {
       
       const updatedTicket = await response.json();
       setTicket(updatedTicket);
+      
+      let message = 'Ticket updated successfully';
+      let shouldToast = false;
+      const isAdmin = (session?.user as any)?.role === 'admin';
+
+      if ('assignedToId' in payload) {
+        const assignedName = agents.find(a => a.id === payload.assignedToId)?.name || 'Unassigned';
+        message = `Ticket assigned to ${assignedName}`;
+        if (isAdmin) shouldToast = true;
+      } else if ('status' in payload) {
+        message = `Ticket status changed to ${payload.status}`;
+        shouldToast = true; // Both admin and agent get status change toast
+      } else if ('category' in payload) {
+        message = `Ticket category changed to ${payload.category}`;
+        shouldToast = true; 
+      }
+      
+      if (shouldToast) {
+        toast.success(message, {
+          className: 'bg-white/95 backdrop-blur-3xl border border-green-100 text-green-950 font-bold shadow-[0_8px_30px_rgb(0,0,0,0.08)] !px-6 !py-4 rounded-2xl'
+        });
+      }
+
     } catch (err: any) {
       alert(err.message);
     } finally {
@@ -155,7 +181,7 @@ export default function TicketDetails() {
           </h3>
           
           <TicketThread ticket={ticket} />
-          <TicketReplyForm onSubmit={handleReplySubmit} isReplying={isReplying} />
+          <TicketReplyForm onSubmit={handleReplySubmit} isReplying={isReplying} customerName={ticket.customerName} />
         </div>
       </div>
     </div>

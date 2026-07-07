@@ -1,6 +1,5 @@
 import { auth } from "./auth.js";
 import { prisma } from "./db.js";
-import { Role } from "@prisma/client";
 
 async function seed() {
     console.log("Starting seed process...");
@@ -36,10 +35,17 @@ async function seed() {
             body: {
                 email,
                 password,
-                name: "Admin User",
-                role: Role.admin
+                name: "Admin User"
             }
         });
+        
+        // Update role to admin manually using prisma
+        if (response.user) {
+            await prisma.user.update({
+                where: { email },
+                data: { role: 'admin' }
+            });
+        }
         
         console.log("Admin user created successfully!");
     } catch (e) {
