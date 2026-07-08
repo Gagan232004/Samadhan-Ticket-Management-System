@@ -9,6 +9,7 @@ import NotificationManager from './components/NotificationManager';
 
 import Tickets from './pages/Tickets';
 import TicketDetails from './pages/TicketDetails';
+import Dashboard from './pages/Dashboard';
 
 function App() {
   return (
@@ -26,6 +27,14 @@ function App() {
           element={
             <ProtectedRoute requireAdmin={true}>
               <Users />
+            </ProtectedRoute>
+          } 
+        />
+        <Route 
+          path="/dashboard" 
+          element={
+            <ProtectedRoute>
+              <Dashboard />
             </ProtectedRoute>
           } 
         />

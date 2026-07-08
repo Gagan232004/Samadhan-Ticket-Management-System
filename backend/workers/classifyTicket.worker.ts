@@ -21,6 +21,8 @@ export async function attachClassifyTicketWorker() {
     for (const job of jobArray) {
       const { ticketId, subject, body, customerName } = job.data as { ticketId: string, subject: string, body: string, customerName?: string };
       
+      const aiAgent = await prisma.user.findUnique({ where: { email: 'ai@samadhaan.com' } });
+      
       console.log(`Processing classify-ticket job for ticket ${ticketId}`);
       try {
         // Mark as Processing
@@ -74,6 +76,7 @@ Rules for auto-resolution:
               ticketId,
               body: object.resolutionText,
               senderType: 'AGENT',
+              ...(aiAgent && { userId: aiAgent.id })
             }
           });
 
@@ -87,23 +90,24 @@ Rules for auto-resolution:
           });
           console.log(`Auto-resolved ticket ${ticketId}`);
         } else {
-          // Couldn't resolve, mark Open
+          // Couldn't resolve, mark Open and unassign from AI
           await prisma.ticket.update({
             where: { id: ticketId },
             data: { 
               category: object.category,
-              status: 'Open'
+              status: 'Open',
+              assignedToId: null
             }
           });
-          console.log(`Classified ticket ${ticketId} as ${object.category}, marked Open`);
+          console.log(`Classified ticket ${ticketId} as ${object.category}, marked Open and unassigned`);
         }
       } catch (error) {
         console.error(`Failed to process ticket ${ticketId} in pg-boss:`, error);
-        // Fallback to Open if something crashes
+        // Fallback to Open and unassign if something crashes
         try {
           await prisma.ticket.update({
             where: { id: ticketId },
-            data: { status: 'Open' }
+            data: { status: 'Open', assignedToId: null }
           });
         } catch(e) {}
         throw error;

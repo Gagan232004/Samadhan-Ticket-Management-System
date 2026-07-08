@@ -2,7 +2,7 @@ import { Link } from 'react-router-dom';
 import { useState } from 'react';
 import { useSession, signOut } from '../lib/auth-client';
 import { useNavigate } from 'react-router-dom';
-import { Menu, X, Home, Ticket, Users } from 'lucide-react';
+import { Menu, X, Home, Ticket, Users, Activity } from 'lucide-react';
 
 export default function Navbar() {
   const { data: session, isPending } = useSession();
@@ -91,7 +91,15 @@ export default function Navbar() {
             className="flex items-center gap-3 px-4 py-3.5 text-zinc-300 hover:text-white hover:bg-indigo-500/20 hover:border-indigo-500/50 border border-transparent rounded-xl transition-all font-semibold"
           >
             <Home className="w-5 h-5 text-indigo-400" />
-            Home Dashboard
+            Home
+          </Link>
+          <Link 
+            to="/dashboard" 
+            onClick={() => setIsSidebarOpen(false)}
+            className="flex items-center gap-3 px-4 py-3.5 text-zinc-300 hover:text-white hover:bg-emerald-500/20 hover:border-emerald-500/50 border border-transparent rounded-xl transition-all font-semibold"
+          >
+            <Activity className="w-5 h-5 text-emerald-400" />
+            Analytics Dashboard
           </Link>
           <Link 
             to="/tickets" 

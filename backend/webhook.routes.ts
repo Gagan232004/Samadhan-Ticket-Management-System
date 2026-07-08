@@ -35,6 +35,11 @@ router.post('/tickets', async (req: Request, res: Response) => {
       return;
     }
 
+    // Try to find the AI agent to assign the ticket to
+    const aiAgent = await prisma.user.findUnique({
+      where: { email: 'ai@samadhaan.com' }
+    });
+
     const ticket = await prisma.ticket.create({
       data: {
         subject,
@@ -42,7 +47,8 @@ router.post('/tickets', async (req: Request, res: Response) => {
         category: category || 'General_Questions',
         customerEmail,
         customerName: customerName || null,
-        status: 'New'
+        status: 'New',
+        ...(aiAgent && { assignedToId: aiAgent.id })
       }
     });
     
