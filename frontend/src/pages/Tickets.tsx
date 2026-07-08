@@ -32,6 +32,7 @@ export default function Tickets() {
   const [debouncedSearch, setDebouncedSearch] = useState('');
   const [statusFilter, setStatusFilter] = useState('All');
   const [categoryFilter, setCategoryFilter] = useState('All');
+  const [priorityFilter, setPriorityFilter] = useState('All');
 
   useEffect(() => {
     const handler = setTimeout(() => {
@@ -43,7 +44,7 @@ export default function Tickets() {
   // Reset to page 1 when filters change
   useEffect(() => {
     setPagination(prev => ({ ...prev, pageIndex: 0 }));
-  }, [debouncedSearch, statusFilter, categoryFilter, sorting]);
+  }, [debouncedSearch, statusFilter, categoryFilter, priorityFilter, sorting]);
 
   const fetchTickets = async () => {
     setLoading(true);
@@ -62,6 +63,7 @@ export default function Tickets() {
       if (debouncedSearch) url.searchParams.set('search', debouncedSearch);
       if (statusFilter !== 'All') url.searchParams.set('status', statusFilter);
       if (categoryFilter !== 'All') url.searchParams.set('category', categoryFilter);
+      if (priorityFilter !== 'All') url.searchParams.set('priority', priorityFilter);
 
       const response = await fetch(url.toString(), {
         credentials: 'include'
@@ -80,7 +82,7 @@ export default function Tickets() {
 
   useEffect(() => {
     fetchTickets();
-  }, [pagination.pageIndex, pagination.pageSize, sorting, debouncedSearch, statusFilter, categoryFilter]);
+  }, [pagination.pageIndex, pagination.pageSize, sorting, debouncedSearch, statusFilter, categoryFilter, priorityFilter]);
 
   const handleCreate = () => {
     setIsModalOpen(true);
@@ -127,6 +129,47 @@ export default function Tickets() {
           {CATEGORY_LABELS[info.getValue()] || info.getValue()}
         </span>
       )
+    }),
+    columnHelper.accessor('priority', {
+      header: 'Priority',
+      cell: info => {
+        const priority = info.getValue();
+        if (!priority) return <span className="text-zinc-500">-</span>;
+        
+        let colors = 'text-zinc-400 bg-zinc-800/50 border-white/5';
+        if (priority === 'Critical') colors = 'text-rose-400 bg-rose-500/10 border-rose-500/20 shadow-[0_0_10px_rgba(244,63,94,0.2)]';
+        else if (priority === 'High') colors = 'text-amber-400 bg-amber-500/10 border-amber-500/20';
+        else if (priority === 'Medium') colors = 'text-blue-400 bg-blue-500/10 border-blue-500/20';
+        
+        return (
+          <span className={`text-xs font-bold uppercase tracking-wider px-2.5 py-1 rounded-md border whitespace-nowrap ${colors}`}>
+            {priority}
+          </span>
+        );
+      }
+    }),
+    columnHelper.accessor('slaDeadline', {
+      header: 'SLA Status',
+      cell: info => {
+        const deadline = info.getValue();
+        const status = info.row.original.status;
+        if (!deadline) return <span className="text-zinc-500">-</span>;
+        
+        if (status === 'Resolved' || status === 'Closed') {
+          return <span className="text-emerald-400 text-xs font-semibold">Resolved</span>;
+        }
+
+        const msRemaining = new Date(deadline).getTime() - Date.now();
+        const hoursRemaining = msRemaining / (1000 * 60 * 60);
+        
+        if (hoursRemaining < 0) {
+          return <span className="text-rose-500 text-xs font-black animate-pulse">BREACHED</span>;
+        } else if (hoursRemaining <= 2) {
+          return <span className="text-amber-400 text-xs font-bold">Near Breach ({hoursRemaining.toFixed(1)}h)</span>;
+        } else {
+          return <span className="text-emerald-400 text-xs font-semibold">On Track ({Math.round(hoursRemaining)}h)</span>;
+        }
+      }
     }),
     columnHelper.accessor('createdAt', {
       header: 'Created At',
@@ -205,6 +248,17 @@ export default function Tickets() {
               {Object.entries(STATUS_LABELS).map(([key, label]) => (
                 <option key={key} value={key}>{label}</option>
               ))}
+            </select>
+            <select 
+              value={priorityFilter}
+              onChange={(e) => setPriorityFilter(e.target.value)}
+              className="px-4 py-2 bg-zinc-950 border border-white/10 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500/50 text-zinc-200 appearance-none min-w-[140px]"
+            >
+              <option value="All">All Priorities</option>
+              <option value="Critical">Critical</option>
+              <option value="High">High</option>
+              <option value="Medium">Medium</option>
+              <option value="Low">Low</option>
             </select>
             <select 
               value={categoryFilter}

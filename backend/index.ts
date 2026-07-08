@@ -39,6 +39,9 @@ app.use('/api/notifications', notificationRoutes);
 import aiRoutes from './ai.routes.js';
 app.use('/api/ai', aiRoutes);
 
+import reportRoutes from './report.routes.js';
+app.use('/api/reports', reportRoutes);
+
 // Agents List Route (Accessible to all authenticated users)
 app.get('/api/users/agents', async (req: Request, res: Response) => {
   const session = await auth.api.getSession({

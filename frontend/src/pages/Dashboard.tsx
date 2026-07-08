@@ -15,6 +15,9 @@ interface DashboardStats {
   aiRecommendation: string;
   chartData: any[];
   sentimentData: any[];
+  slaNearBreach: number;
+  slaBreached: number;
+  slaComplianceRate: number;
 }
 
 export default function Dashboard() {
@@ -215,6 +218,19 @@ export default function Dashboard() {
               </div>
             </div>
 
+            <div className="grid grid-cols-2 gap-4">
+              <div className="bg-zinc-950/50 rounded-2xl p-4 border border-emerald-500/20 relative overflow-hidden">
+                <div className="absolute inset-0 bg-emerald-500/5 blur-xl"></div>
+                <p className="text-xs text-emerald-400 font-bold uppercase tracking-wider mb-1 relative z-10">SLA Compliance</p>
+                <p className="text-2xl font-black text-emerald-300 relative z-10">{stats.slaComplianceRate}%</p>
+              </div>
+              <div className="bg-zinc-950/50 rounded-2xl p-4 border border-amber-500/20 relative overflow-hidden">
+                <div className="absolute inset-0 bg-amber-500/5 blur-xl"></div>
+                <p className="text-xs text-amber-400 font-bold uppercase tracking-wider mb-1 relative z-10">Near Breach</p>
+                <p className="text-2xl font-black text-amber-300 relative z-10">{stats.slaNearBreach}</p>
+              </div>
+            </div>
+
             <div className="flex flex-col gap-3">
               <div className="bg-zinc-950/50 rounded-2xl p-4 border border-white/5 flex items-center justify-between">
                 <div className="flex items-center gap-3">
@@ -293,13 +309,13 @@ export default function Dashboard() {
               </div>
             </div>
 
-            {/* Donut Chart - Customer Sentiment */}
+            {/* Donut Chart - SLA Status */}
             <div className="bg-zinc-900/40 backdrop-blur-xl border border-white/[0.08] rounded-3xl p-6 shadow-2xl flex flex-col lg:col-span-2">
               <div className="flex items-center gap-3 mb-2">
                 <div className="p-2.5 bg-fuchsia-500/10 rounded-xl border border-fuchsia-500/20">
-                  <Smile className="w-5 h-5 text-fuchsia-400" />
+                  <CheckCircle2 className="w-5 h-5 text-fuchsia-400" />
                 </div>
-                <h3 className="text-xl font-bold text-white tracking-tight">Customer Sentiment Overview</h3>
+                <h3 className="text-xl font-bold text-white tracking-tight">SLA Status Distribution</h3>
               </div>
               <div className="flex-1 flex items-center justify-center -my-4 relative">
                 <ResponsiveContainer width="100%" height={220}>
@@ -327,8 +343,8 @@ export default function Dashboard() {
                 
                 {/* Center text for donut */}
                 <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
-                  <span className="text-3xl font-black text-white">{stats.sentimentData[0].value}%</span>
-                  <span className="text-[10px] uppercase font-bold tracking-widest text-emerald-400">Positive</span>
+                  <span className="text-3xl font-black text-white">{stats.sentimentData[0].value}</span>
+                  <span className="text-[10px] uppercase font-bold tracking-widest text-emerald-400">On Track</span>
                 </div>
               </div>
 
@@ -336,7 +352,7 @@ export default function Dashboard() {
               <div className="grid grid-cols-3 gap-2 mt-2">
                 {stats.sentimentData.map(item => (
                   <div key={item.name} className="bg-zinc-950/50 rounded-xl p-3 border border-white/5 flex flex-col items-center text-center">
-                    <span className="text-xl font-bold text-white mb-1">{item.value}%</span>
+                    <span className="text-xl font-bold text-white mb-1">{item.value}</span>
                     <div className="flex items-center gap-1.5 text-xs font-semibold text-zinc-400 uppercase tracking-wide">
                       <span className="w-2 h-2 rounded-full" style={{ backgroundColor: item.color }}></span>
                       {item.name}

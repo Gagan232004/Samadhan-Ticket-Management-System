@@ -107,18 +107,31 @@ model Verification {
   @@index([identifier])
 }
 
+enum TicketPriority {
+  Critical
+  High
+  Medium
+  Low
+}
+
 model Ticket {
   id            String    @id @default(cuid())
   subject       String
   body          String    @db.Text
   status        TicketStatus    @default(New)
   category      TicketCategory  @default(General_Questions)
+  priority      TicketPriority?
   
   customerEmail String
   customerName  String?
 
   assignedToId  String?
   assignedTo    User?     @relation("UserTickets", fields: [assignedToId], references: [id])
+
+  slaDeadline       DateTime?
+  aiRiskLevel       String?
+  aiRiskScore       Float?
+  aiRecommendation  String?   @db.Text
 
   createdAt     DateTime  @default(now())
   updatedAt     DateTime  @updatedAt

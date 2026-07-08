@@ -35,12 +35,13 @@ export async function attachClassifyTicketWorker() {
           model: google('gemini-3.1-flash-lite-preview'),
           schema: z.object({
             category: z.enum(['General_Questions', 'Technical_Questions', 'Refund_Request', 'Others']),
+            priority: z.enum(['Critical', 'High', 'Medium', 'Low']),
             canResolve: z.boolean(),
             resolutionText: z.string().describe('The reply to the customer if the issue can be resolved. MUST use \\n characters to format into multiple paragraphs and separate the signature.').optional()
           }),
           prompt: `You are an AI support agent.
 Read the following Knowledge Base carefully and determine if the user's ticket can be fully resolved.
-Also classify the ticket into a category.
+Also classify the ticket into a category and determine its priority.
 
 Knowledge Base:
 """
@@ -57,6 +58,12 @@ Allowed Categories:
 - Refund_Request (asking for money back, disputing charges, cancellation)
 - Others (anything else that does not fit)
 
+Allowed Priorities:
+- Critical (platform down, data loss, immediate severe impact)
+- High (major feature broken, time-sensitive issue)
+- Medium (normal bugs, standard questions)
+- Low (feature requests, non-urgent inquiries)
+
 Rules for auto-resolution:
 1. STRICT GROUNDING: You MUST ONLY use the provided Knowledge Base to answer the question.
 2. DO NOT use external knowledge. DO NOT guess. DO NOT hallucinate.
@@ -68,6 +75,14 @@ Rules for auto-resolution:
 8. Ensure the reply has a professional and customer-friendly tone, and is properly formatted.
 9. Do NOT use Markdown formatting such as asterisks (**) for bolding. Output plain text only, but DO use newlines to separate paragraphs and the signature.`
         });
+
+        // Calculate SLA Deadline based on priority
+        let hours = 24;
+        if (object.priority === 'Critical') hours = 2;
+        else if (object.priority === 'High') hours = 4;
+        else if (object.priority === 'Medium') hours = 8;
+        
+        const slaDeadline = new Date(Date.now() + hours * 60 * 60 * 1000);
 
         if (object.canResolve && object.resolutionText) {
           // Add a reply
@@ -85,21 +100,25 @@ Rules for auto-resolution:
             where: { id: ticketId },
             data: { 
               category: object.category,
+              priority: object.priority,
+              slaDeadline,
               status: 'Resolved'
             }
           });
-          console.log(`Auto-resolved ticket ${ticketId}`);
+          console.log(`Auto-resolved ticket ${ticketId} (Priority: ${object.priority})`);
         } else {
           // Couldn't resolve, mark Open and unassign from AI
           await prisma.ticket.update({
             where: { id: ticketId },
             data: { 
               category: object.category,
+              priority: object.priority,
+              slaDeadline,
               status: 'Open',
               assignedToId: null
             }
           });
-          console.log(`Classified ticket ${ticketId} as ${object.category}, marked Open and unassigned`);
+          console.log(`Classified ticket ${ticketId} as ${object.category} / ${object.priority}, marked Open and unassigned`);
         }
       } catch (error) {
         console.error(`Failed to process ticket ${ticketId} in pg-boss:`, error);

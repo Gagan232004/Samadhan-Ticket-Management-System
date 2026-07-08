@@ -10,6 +10,7 @@ import NotificationManager from './components/NotificationManager';
 import Tickets from './pages/Tickets';
 import TicketDetails from './pages/TicketDetails';
 import Dashboard from './pages/Dashboard';
+import Reports from './pages/Reports';
 
 function App() {
   return (
@@ -20,7 +21,14 @@ function App() {
       <NotificationManager />
       <Navbar />
       <Routes>
-        <Route path="/" element={<Home />} />
+        <Route 
+          path="/" 
+          element={
+            <ProtectedRoute>
+              <Dashboard />
+            </ProtectedRoute>
+          } 
+        />
         <Route path="/login" element={<Login />} />
         <Route 
           path="/users" 
@@ -31,10 +39,10 @@ function App() {
           } 
         />
         <Route 
-          path="/dashboard" 
+          path="/reports" 
           element={
             <ProtectedRoute>
-              <Dashboard />
+              <Reports />
             </ProtectedRoute>
           } 
         />

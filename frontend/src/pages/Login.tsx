@@ -1,6 +1,6 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { signIn } from '../lib/auth-client';
+import { signIn, useSession } from '../lib/auth-client';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -23,6 +23,13 @@ type LoginForm = z.infer<typeof loginSchema>;
 export default function Login() {
   const [error, setError] = useState('');
   const navigate = useNavigate();
+  const { data: session } = useSession();
+
+  useEffect(() => {
+    if (session?.user) {
+      navigate('/');
+    }
+  }, [session, navigate]);
 
   const {
     register,

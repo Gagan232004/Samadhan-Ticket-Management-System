@@ -88,14 +88,6 @@ export default function Navbar() {
           <Link 
             to="/" 
             onClick={() => setIsSidebarOpen(false)}
-            className="flex items-center gap-3 px-4 py-3.5 text-zinc-300 hover:text-white hover:bg-indigo-500/20 hover:border-indigo-500/50 border border-transparent rounded-xl transition-all font-semibold"
-          >
-            <Home className="w-5 h-5 text-indigo-400" />
-            Home
-          </Link>
-          <Link 
-            to="/dashboard" 
-            onClick={() => setIsSidebarOpen(false)}
             className="flex items-center gap-3 px-4 py-3.5 text-zinc-300 hover:text-white hover:bg-emerald-500/20 hover:border-emerald-500/50 border border-transparent rounded-xl transition-all font-semibold"
           >
             <Activity className="w-5 h-5 text-emerald-400" />
@@ -109,15 +101,25 @@ export default function Navbar() {
             <Ticket className="w-5 h-5 text-teal-400" />
             Tickets Management
           </Link>
+          <Link 
+            to="/reports" 
+            onClick={() => setIsSidebarOpen(false)}
+            className="flex items-center gap-3 px-4 py-3.5 text-zinc-300 hover:text-white hover:bg-orange-500/20 hover:border-orange-500/50 border border-transparent rounded-xl transition-all font-semibold"
+          >
+            <Activity className="w-5 h-5 text-orange-400" />
+            Performance Reports
+          </Link>
           {(session?.user as any)?.role === 'admin' && (
-            <Link 
-              to="/users" 
-              onClick={() => setIsSidebarOpen(false)}
-              className="flex items-center gap-3 px-4 py-3.5 text-zinc-300 hover:text-white hover:bg-pink-500/20 hover:border-pink-500/50 border border-transparent rounded-xl transition-all font-semibold"
-            >
-              <Users className="w-5 h-5 text-pink-400" />
-              Users & Agents
-            </Link>
+            <>
+              <Link 
+                to="/users" 
+                onClick={() => setIsSidebarOpen(false)}
+                className="flex items-center gap-3 px-4 py-3.5 text-zinc-300 hover:text-white hover:bg-pink-500/20 hover:border-pink-500/50 border border-transparent rounded-xl transition-all font-semibold"
+              >
+                <Users className="w-5 h-5 text-pink-400" />
+                Users & Agents
+              </Link>
+            </>
           )}
         </div>
       </div>

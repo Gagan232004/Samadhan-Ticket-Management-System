@@ -1,10 +1,12 @@
 import { prisma } from './db.js';
-
-async function main() {
-  const users = await prisma.user.updateMany({
-    data: { role: 'admin' }
+async function fix() {
+  await prisma.ticket.update({
+    where: { id: 'cmrccewc000013cmi8322v922' },
+    data: {
+      priority: 'Critical',
+      slaDeadline: new Date(Date.now() + 2 * 60 * 60 * 1000)
+    }
   });
-  console.log(`Updated ${users.count} users to admin role`);
+  console.log('Fixed ticket priority and deadline');
 }
-
-main().catch(console.error).finally(() => process.exit(0));
+fix();

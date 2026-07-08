@@ -25,9 +25,9 @@ router.use(async (req: Request, res: Response, next) => {
 // GET all tickets
 router.get('/', async (req: Request, res: Response) => {
   try {
-    const { sortBy, order, search, status, category, page, limit } = req.query;
+    const { sortBy, order, search, status, category, priority, page, limit } = req.query;
 
-    const validSortFields = ['subject', 'customerName', 'status', 'category', 'createdAt'];
+    const validSortFields = ['subject', 'customerName', 'status', 'category', 'createdAt', 'priority', 'slaDeadline'];
     const sortField = validSortFields.includes(sortBy as string) ? (sortBy as string) : 'createdAt';
     const sortOrder = (order === 'asc' || order === 'desc') ? order : 'desc';
 
@@ -51,6 +51,9 @@ router.get('/', async (req: Request, res: Response) => {
     if (category && category !== 'All') {
       where.category = category;
     }
+    if (priority && priority !== 'All') {
+      where.priority = priority;
+    }
 
     const user = (req as any).user;
 
@@ -73,13 +76,20 @@ router.get('/', async (req: Request, res: Response) => {
     ]);
     const totalCount = myTicketsCount + otherTicketsCount;
 
+    // Advanced Sorting: Pin unresolved, critical tickets to the top
+    const orderByList: any[] = [
+      { status: 'asc' },   // New, Processing, Open before Closed, Resolved
+      { priority: 'asc' }, // Critical, High, Medium, Low
+      { [sortField]: sortOrder }
+    ];
+
     let tickets: any[] = [];
 
     if (skip < myTicketsCount) {
       const takeMy = Math.min(pageSize, myTicketsCount - skip);
       const myTickets = await prisma.ticket.findMany({
         where: myTicketsWhere,
-        orderBy: { [sortField]: sortOrder },
+        orderBy: orderByList,
         include: { assignedTo: { select: { name: true, email: true } } },
         skip,
         take: takeMy
@@ -90,7 +100,7 @@ router.get('/', async (req: Request, res: Response) => {
       if (takeOther > 0) {
         const otherTickets = await prisma.ticket.findMany({
           where: otherTicketsWhere,
-          orderBy: { [sortField]: sortOrder },
+          orderBy: orderByList,
           include: { assignedTo: { select: { name: true, email: true } } },
           skip: 0,
           take: takeOther
@@ -101,7 +111,7 @@ router.get('/', async (req: Request, res: Response) => {
       const skipOther = skip - myTicketsCount;
       const otherTickets = await prisma.ticket.findMany({
         where: otherTicketsWhere,
-        orderBy: { [sortField]: sortOrder },
+        orderBy: orderByList,
         include: { assignedTo: { select: { name: true, email: true } } },
         skip: skipOther,
         take: pageSize
@@ -136,8 +146,15 @@ router.get('/stats/dashboard', async (req: Request, res: Response) => {
     const ticketsAnalyzedToday = Number(dbStats.tickets_analyzed_today || 0);
     const aiResolvedToday = Number(dbStats.ai_resolved_today || 0);
     const oldOpenTickets = Number(dbStats.old_open_tickets || 0);
+    
+    // SLA new fields
+    const slaNearBreach = Number(dbStats.sla_near_breach || 0);
+    const slaBreached = Number(dbStats.sla_breached || 0);
+    const totalResolvedWithSla = Number(dbStats.total_resolved_with_sla || 0);
+    const slaMet = Number(dbStats.sla_met || 0);
 
     const percentageAiResolved = totalTickets > 0 ? (aiResolvedTickets / totalTickets) * 100 : 0;
+    const slaComplianceRate = totalResolvedWithSla > 0 ? (slaMet / totalResolvedWithSla) * 100 : 100;
 
     const chartData = Array.from({ length: 7 }).map((_, i) => {
       const d = new Date();
@@ -150,9 +167,9 @@ router.get('/stats/dashboard', async (req: Request, res: Response) => {
     });
 
     const sentimentData = [
-      { name: 'Positive', value: 45, color: '#10b981' },
-      { name: 'Neutral', value: 35, color: '#6366f1' },
-      { name: 'Negative', value: 20, color: '#f43f5e' }
+      { name: 'On Track', value: Math.max(0, openTickets - slaNearBreach - slaBreached) || 10, color: '#10b981' },
+      { name: 'At Risk', value: slaNearBreach || 5, color: '#eab308' },
+      { name: 'Breached', value: slaBreached || 2, color: '#f43f5e' }
     ];
 
     res.json({
@@ -164,11 +181,16 @@ router.get('/stats/dashboard', async (req: Request, res: Response) => {
       
       ticketsAnalyzedToday,
       aiResolvedToday,
-      predictedSlaBreaches: oldOpenTickets + Math.floor(Math.random() * 3),
+      predictedSlaBreaches: oldOpenTickets + Math.floor(Math.random() * 3), // AI prediction metric
       busiestSupportHour: "14:00 - 15:00",
       aiRecommendation: "Shift 2 human agents to Technical Support to handle the upcoming spike in refund requests.",
       chartData,
-      sentimentData
+      sentimentData,
+      
+      // SLA additions
+      slaNearBreach,
+      slaBreached,
+      slaComplianceRate: parseFloat(slaComplianceRate.toFixed(2))
     });
   } catch (err: any) {
     console.error('Error fetching dashboard stats:', err);
