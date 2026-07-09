@@ -398,6 +398,18 @@ router.post('/:id/replies', async (req: Request, res: Response) => {
       data: { updatedAt: new Date() }
     });
     
+    // Send email to customer if it's an agent replying and customer has an email
+    if (senderType !== 'customer' && ticket.customerEmail) {
+      import('./email.js').then(({ sendEmail }) => {
+        sendEmail(
+          ticket.customerEmail!,
+          `Re: ${ticket.subject}`,
+          body,
+          bodyHtml
+        ).catch(console.error);
+      });
+    }
+    
     res.status(201).json(reply);
   } catch (err: any) {
     console.error('Error creating reply:', err);

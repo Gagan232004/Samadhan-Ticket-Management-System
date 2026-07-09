@@ -98,9 +98,8 @@ export default function Dashboard() {
               <h1 className="text-3xl md:text-4xl font-black text-transparent bg-clip-text bg-gradient-to-r from-white via-indigo-100 to-indigo-300 tracking-tight drop-shadow-sm mb-1">
                 Analytics Hub
               </h1>
-              <p className="text-zinc-400 font-medium text-base flex items-center gap-2">
-                <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse shadow-[0_0_8px_rgba(16,185,129,0.5)]"></span>
-                System operations running smoothly
+              <p className="text-sm font-medium text-indigo-200/60 tracking-wide">
+                SYSTEM METRICS & AI INSIGHTS
               </p>
             </div>
           </div>
