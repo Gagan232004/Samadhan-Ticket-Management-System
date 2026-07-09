@@ -22,7 +22,11 @@ app.use(express.json());
 // Auth Route
 app.all(/^\/api\/auth(?:\/.*)?$/, toNodeHandler(auth.handler));
 
-// Basic Route
+// Basic Routes
+app.get('/', (req: Request, res: Response) => {
+  res.send('Welcome to the Ticketly Backend API! 🚀 The server is running successfully. Check /api/health for status.');
+});
+
 app.get('/api/health', (req: Request, res: Response) => {
   res.json({ status: 'success', message: 'Express server is running on Bun!' });
 });
