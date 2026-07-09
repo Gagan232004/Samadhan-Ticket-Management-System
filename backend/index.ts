@@ -1,5 +1,4 @@
 import * as Sentry from "@sentry/node";
-import { nodeProfilingIntegration } from "@sentry/profiling-node";
 import express, { type Request, type Response, type NextFunction } from 'express';
 import cors from 'cors';
 import dotenv from 'dotenv';
@@ -15,9 +14,7 @@ if (process.env.SENTRY_DSN) {
   Sentry.init({
     dsn: process.env.SENTRY_DSN,
     environment: process.env.SENTRY_ENVIRONMENT || process.env.VITE_SENTRY_ENVIRONMENT || "development",
-    integrations: [
-      nodeProfilingIntegration(),
-    ],
+    integrations: [],
     // Tracing
     tracesSampleRate: 1.0, //  Capture 100% of the transactions
   });

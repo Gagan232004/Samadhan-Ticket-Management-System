@@ -43,20 +43,21 @@ export default function Login() {
     setError('');
 
     try {
-      await signIn.email({
+      const { data: sessionData, error: authError } = await signIn.email({
         email: data.email,
         password: data.password,
-        fetchOptions: {
-          onSuccess: () => navigate('/'),
-          onError: (ctx) => {
-            let errorMsg = ctx.error.message || 'Failed to login';
-            if (errorMsg.includes('banned') || ctx.error.code === 'BANNED_USER' || ctx.error.status === 403) {
-              errorMsg = 'User does not exist.';
-            }
-            setError(errorMsg);
-          },
-        }
       });
+
+      if (authError) {
+        let errorMsg = authError.message || 'Failed to login';
+        if (errorMsg.includes('banned') || authError.code === 'BANNED_USER' || authError.status === 403) {
+          errorMsg = 'User does not exist.';
+        }
+        setError(errorMsg);
+        return;
+      }
+
+      navigate('/');
     } catch (err: any) {
       setError(err.message || 'An unexpected error occurred');
     }

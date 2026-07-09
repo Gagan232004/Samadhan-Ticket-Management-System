@@ -6,12 +6,13 @@ export async function startJobs() {
   await boss.start();
   console.log('pg-boss started');
   
-  // Attach all workers
-  await attachClassifyTicketWorker();
-  await attachSlaMonitorWorker();
-
-  // Schedule the SLA Monitor job to run every 15 minutes
+  // Create queues before attaching workers
+  await boss.createQueue('classify-ticket');
   await boss.createQueue('sla-monitor');
   await boss.schedule('sla-monitor', '*/15 * * * *');
   console.log('SLA Monitor scheduled to run every 15 minutes');
+  
+  // Attach all workers
+  await attachClassifyTicketWorker();
+  await attachSlaMonitorWorker();
 }

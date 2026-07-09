@@ -18,8 +18,8 @@ async function seed() {
     });
 
     if (existingUser) {
-        console.log(`Admin user ${email} already exists. Skipping seed.`);
-        return;
+        console.log(`Admin user ${email} already exists. Deleting it to reseed with new hashing algorithm...`);
+        await prisma.user.delete({ where: { email } });
     }
 
     console.log("Creating admin user via Better Auth...");

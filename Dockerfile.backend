@@ -1,0 +1,34 @@
+FROM oven/bun:1 AS base
+
+WORKDIR /app
+
+# Copy the core package first since both frontend and backend depend on it
+COPY core ./core/
+
+# --- Backend Image ---
+FROM base AS backend
+
+# Copy backend files
+COPY backend/package.json backend/bun.lock* ./backend/
+COPY backend/prisma ./backend/prisma/
+
+# Create a root package.json for workspace resolution and install all dependencies
+RUN echo '{ "workspaces": ["core", "backend"] }' > package.json
+RUN bun install
+
+WORKDIR /app/backend
+
+# Use binary engine to avoid Bun NAPI crashes
+ENV PRISMA_CLIENT_ENGINE_TYPE=binary
+
+# Generate Prisma client
+RUN bunx prisma generate
+
+# Copy the rest of the backend code
+COPY backend ./
+
+# Expose port
+EXPOSE 5000
+
+# Start the server
+CMD ["bun", "run", "index.ts"]
