@@ -42,6 +42,12 @@ app.use('/api/ai', aiRoutes);
 import reportRoutes from './report.routes.js';
 app.use('/api/reports', reportRoutes);
 
+import uploadRoutes from './upload.routes.js';
+app.use('/api/uploads', uploadRoutes);
+
+import path from 'path';
+app.use('/uploads', express.static(path.join(process.cwd(), 'uploads')));
+
 // Agents List Route (Accessible to all authenticated users)
 app.get('/api/users/agents', async (req: Request, res: Response) => {
   const session = await auth.api.getSession({

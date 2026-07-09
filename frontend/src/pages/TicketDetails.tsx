@@ -97,7 +97,7 @@ export default function TicketDetails() {
     }
   };
 
-  const handleReplySubmit = async (body: string) => {
+  const handleReplySubmit = async (body: string, files?: File[]) => {
     setIsReplying(true);
     try {
       const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:5000';
@@ -110,7 +110,31 @@ export default function TicketDetails() {
 
       if (!response.ok) throw new Error('Failed to submit reply');
       
-      const newReply = await response.json();
+      let newReply = await response.json();
+
+      // Handle Attachments
+      if (files && files.length > 0) {
+        const formData = new FormData();
+        formData.append('ticketId', id as string);
+        formData.append('replyId', newReply.id);
+        files.forEach(file => formData.append('files', file));
+
+        const uploadRes = await fetch(`${apiUrl}/api/uploads`, {
+          method: 'POST',
+          credentials: 'include',
+          body: formData
+        });
+
+        if (uploadRes.ok) {
+          const uploadData = await uploadRes.json();
+          if (uploadData.attachments) {
+            newReply.attachments = uploadData.attachments;
+          }
+        } else {
+          console.error('Failed to upload some attachments');
+        }
+      }
+
       setTicket(prev => prev ? {
         ...prev,
         replies: [...(prev.replies || []), newReply]

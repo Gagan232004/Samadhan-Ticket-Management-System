@@ -52,6 +52,7 @@ model User {
   tickets       Ticket[]  @relation("UserTickets")
   replies       TicketReply[]
   notifications Notification[]
+  attachments   Attachment[]
 
   @@unique([email])
   @@map("user")
@@ -137,6 +138,7 @@ model Ticket {
   updatedAt     DateTime  @updatedAt
 
   replies       TicketReply[]
+  attachments   Attachment[]
 
   @@map("ticket")
 }
@@ -156,6 +158,8 @@ model TicketReply {
   userId    String?
   user      User?    @relation(fields: [userId], references: [id], onDelete: SetNull)
 
+  attachments Attachment[]
+
   @@map("ticket_reply")
 }
 
@@ -169,4 +173,24 @@ model Notification {
   user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@map("notification")
+}
+
+model Attachment {
+  id        String   @id @default(cuid())
+  filename  String
+  url       String
+  mimetype  String?
+  size      Int?
+  createdAt DateTime @default(now())
+
+  ticketId  String
+  ticket    Ticket   @relation(fields: [ticketId], references: [id], onDelete: Cascade)
+
+  replyId   String?
+  reply     TicketReply? @relation(fields: [replyId], references: [id], onDelete: Cascade)
+
+  uploaderId String?
+  uploader   User?   @relation(fields: [uploaderId], references: [id], onDelete: SetNull)
+
+  @@map("attachment")
 }

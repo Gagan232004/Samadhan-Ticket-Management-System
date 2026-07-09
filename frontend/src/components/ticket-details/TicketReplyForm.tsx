@@ -1,8 +1,9 @@
-import { useState } from 'react';
+import { useState, useRef } from 'react';
 import { toast } from 'sonner';
+import { Paperclip, X } from 'lucide-react';
 
 interface TicketReplyFormProps {
-  onSubmit: (body: string) => Promise<void>;
+  onSubmit: (body: string, files: File[]) => Promise<void>;
   isReplying: boolean;
   customerName?: string | null;
 }
@@ -10,13 +11,16 @@ interface TicketReplyFormProps {
 export default function TicketReplyForm({ onSubmit, isReplying, customerName }: TicketReplyFormProps) {
   const [replyBody, setReplyBody] = useState('');
   const [isPolishing, setIsPolishing] = useState(false);
+  const [attachments, setAttachments] = useState<File[]>([]);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!replyBody.trim()) return;
+    if (!replyBody.trim() && attachments.length === 0) return;
     
-    await onSubmit(replyBody);
+    await onSubmit(replyBody, attachments);
     setReplyBody('');
+    setAttachments([]);
   };
 
   const handlePolish = async () => {
@@ -54,11 +58,49 @@ export default function TicketReplyForm({ onSubmit, isReplying, customerName }: 
             value={replyBody}
             onChange={e => setReplyBody(e.target.value)}
             placeholder="Write a reply..."
-            required
+            required={attachments.length === 0}
             rows={3}
             className="w-full bg-zinc-950/50 border border-white/10 rounded-2xl px-4 py-3 text-zinc-200 focus:outline-none focus:ring-2 focus:ring-indigo-500/50 focus:border-indigo-500 transition-all resize-none shadow-inner"
           />
-          <div className="mt-3 flex justify-end gap-3">
+          
+          {attachments.length > 0 && (
+            <div className="flex flex-wrap gap-2 mt-2">
+              {attachments.map((file, idx) => (
+                <div key={idx} className="flex items-center gap-2 bg-indigo-500/10 text-indigo-300 text-xs px-3 py-1.5 rounded-lg border border-indigo-500/20">
+                  <span className="truncate max-w-[150px]">{file.name}</span>
+                  <button type="button" onClick={() => setAttachments(attachments.filter((_, i) => i !== idx))} className="hover:text-white transition-colors">
+                    <X className="w-3.5 h-3.5" />
+                  </button>
+                </div>
+              ))}
+            </div>
+          )}
+
+          <div className="mt-3 flex justify-between items-center gap-3">
+            <div className="flex items-center gap-2">
+              <input
+                type="file"
+                multiple
+                ref={fileInputRef}
+                className="hidden"
+                onChange={(e) => {
+                  if (e.target.files) {
+                    setAttachments([...attachments, ...Array.from(e.target.files)]);
+                  }
+                  e.target.value = '';
+                }}
+              />
+              <button
+                type="button"
+                onClick={() => fileInputRef.current?.click()}
+                className="p-2 text-zinc-400 hover:text-indigo-400 hover:bg-indigo-500/10 rounded-lg transition-colors border border-transparent hover:border-indigo-500/20"
+                title="Attach files"
+              >
+                <Paperclip className="w-5 h-5" />
+              </button>
+            </div>
+            
+            <div className="flex items-center gap-3">
             <button
               type="button"
               onClick={handlePolish}
@@ -94,6 +136,7 @@ export default function TicketReplyForm({ onSubmit, isReplying, customerName }: 
                 </>
               )}
             </button>
+            </div>
           </div>
         </form>
       </div>

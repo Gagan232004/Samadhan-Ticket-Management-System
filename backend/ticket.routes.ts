@@ -207,8 +207,10 @@ router.get('/:id', async (req: Request, res: Response) => {
         assignedTo: {
           select: { name: true, email: true }
         },
+        attachments: true,
         replies: {
           include: {
+            attachments: true,
             user: {
               select: { id: true, name: true, image: true, role: true }
             }

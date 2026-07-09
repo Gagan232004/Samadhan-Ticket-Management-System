@@ -1,6 +1,7 @@
-import { useState, useEffect } from 'react';
+import { useState, useRef } from 'react';
 import type { Ticket } from '../types';
 import { CATEGORY_LABELS } from '../lib/constants';
+import { Paperclip, X } from 'lucide-react';
 
 interface TicketModalProps {
   onClose: () => void;
@@ -14,6 +15,9 @@ export default function TicketModal({ onClose, onSave }: TicketModalProps) {
   const [customerName, setCustomerName] = useState('');
   const [category, setCategory] = useState('General_Questions');
   
+  const [attachments, setAttachments] = useState<File[]>([]);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
 
@@ -36,6 +40,24 @@ export default function TicketModal({ onClose, onSave }: TicketModalProps) {
       if (!response.ok) {
         const err = await response.json();
         throw new Error(err.error || 'Failed to save ticket');
+      }
+
+      const ticket = await response.json();
+
+      if (attachments.length > 0) {
+        const formData = new FormData();
+        formData.append('ticketId', ticket.id);
+        attachments.forEach(file => formData.append('files', file));
+
+        const uploadRes = await fetch(`${apiUrl}/api/uploads`, {
+          method: 'POST',
+          credentials: 'include',
+          body: formData
+        });
+
+        if (!uploadRes.ok) {
+          throw new Error('Failed to upload some attachments');
+        }
       }
 
       onSave();
@@ -143,6 +165,45 @@ export default function TicketModal({ onClose, onSave }: TicketModalProps) {
                   ))}
                 </select>
               </div>
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-zinc-400 mb-1">Attachments</label>
+              <div className="flex items-center gap-2">
+                <input
+                  type="file"
+                  multiple
+                  ref={fileInputRef}
+                  className="hidden"
+                  onChange={(e) => {
+                    if (e.target.files) {
+                      setAttachments([...attachments, ...Array.from(e.target.files)]);
+                    }
+                    e.target.value = '';
+                  }}
+                />
+                <button
+                  type="button"
+                  onClick={() => fileInputRef.current?.click()}
+                  className="flex items-center gap-2 px-4 py-2 bg-zinc-950 border border-white/10 rounded-lg text-sm font-medium text-zinc-300 hover:text-indigo-400 hover:bg-indigo-500/10 hover:border-indigo-500/20 transition-all"
+                >
+                  <Paperclip className="w-4 h-4" />
+                  Attach Files
+                </button>
+              </div>
+              
+              {attachments.length > 0 && (
+                <div className="flex flex-wrap gap-2 mt-3">
+                  {attachments.map((file, idx) => (
+                    <div key={idx} className="flex items-center gap-2 bg-indigo-500/10 text-indigo-300 text-xs px-3 py-1.5 rounded-lg border border-indigo-500/20">
+                      <span className="truncate max-w-[150px]">{file.name}</span>
+                      <button type="button" onClick={() => setAttachments(attachments.filter((_, i) => i !== idx))} className="hover:text-white transition-colors">
+                        <X className="w-3.5 h-3.5" />
+                      </button>
+                    </div>
+                  ))}
+                </div>
+              )}
             </div>
 
           </form>
