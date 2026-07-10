@@ -96,7 +96,7 @@ Rules for auto-resolution:
           });
 
           // Mark resolved
-          await prisma.ticket.update({
+          const updatedTicket = await prisma.ticket.update({
             where: { id: ticketId },
             data: { 
               category: object.category,
@@ -105,7 +105,18 @@ Rules for auto-resolution:
               status: 'Resolved'
             }
           });
-          console.log(`Auto-resolved ticket ${ticketId} (Priority: ${object.priority})`);
+          
+          if (updatedTicket.customerEmail) {
+            import('../email.js').then(({ sendEmail }) => {
+              sendEmail(
+                updatedTicket.customerEmail!,
+                `Re: ${updatedTicket.subject}`,
+                object.resolutionText!
+              ).catch(console.error);
+            });
+          }
+          
+          console.log(`Auto-resolved ticket ${ticketId} (Priority: ${object.priority}) and sent email.`);
         } else {
           // Couldn't resolve, mark Open and unassign from AI
           await prisma.ticket.update({
