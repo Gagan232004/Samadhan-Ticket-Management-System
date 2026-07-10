@@ -40,9 +40,10 @@ export async function attachClassifyTicketWorker() {
         const { object } = await generateObject({
           model: groq('llama-3.3-70b-versatile'),
           schema: z.object({
+            reasoning: z.string().describe('Explain your thought process step-by-step. Does the Knowledge Base explicitly answer the core question? Does it violate any Escalation Rules?'),
             category: z.enum(['General_Questions', 'Technical_Questions', 'Refund_Request', 'Others']),
             priority: z.enum(['Critical', 'High', 'Medium', 'Low']),
-            canResolve: z.boolean(),
+            canResolve: z.boolean().describe('Set to true ONLY if the core question is fully answered by the Knowledge Base and no escalation rules are violated.'),
             resolutionText: z.string().describe('The reply to the customer if the issue can be resolved. MUST use \\n characters to format into multiple paragraphs and separate the signature.').optional()
           }),
           prompt: `You are an AI support agent.
@@ -71,11 +72,11 @@ Allowed Priorities:
 - Low (feature requests, non-urgent inquiries)
 
 Rules for auto-resolution:
-1. STRICT GROUNDING: You MUST ONLY use the provided Knowledge Base to answer the question.
+1. STRICT GROUNDING: You MUST ONLY use the provided Knowledge Base to answer the question. Ignore extra context provided by the user (e.g. going on a flight, personal stories) as long as their core question is answered in the KB.
 2. DO NOT use external knowledge. DO NOT guess. DO NOT hallucinate.
-3. If the answer is NOT explicitly stated in the Knowledge Base, you MUST set canResolve to false.
-4. Follow the Escalation Rules from the Knowledge Base (e.g. do NOT resolve if user threatens legal action, disputes a charge, or if confidence is low).
-5. If you can confidently answer the question using ONLY the Knowledge Base, set canResolve=true and provide the resolutionText. 
+3. If the answer to the core question is NOT explicitly stated in the Knowledge Base, you MUST set canResolve to false.
+4. Follow the Escalation Rules from the Knowledge Base (e.g. do NOT resolve if user threatens legal action, disputes a charge).
+5. If you can confidently answer the core question using ONLY the Knowledge Base, set canResolve=true and provide the resolutionText. 
 6. The resolutionText MUST address the customer by their first name at the beginning.
 7. The resolutionText MUST be signed at the very end with 'Best regards, Samadhaan Support'.
 8. Ensure the reply has a professional and customer-friendly tone, and is properly formatted.
