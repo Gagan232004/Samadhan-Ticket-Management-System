@@ -9,6 +9,7 @@ import { fileURLToPath } from 'url';
 import { generateObject } from 'ai';
 import { groq } from '@ai-sdk/groq';
 import { z } from 'zod';
+import { generateAndSaveTicketEmbedding } from './embed.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -305,6 +306,9 @@ router.post('/', async (req: Request, res: Response) => {
         customerName
       }
     });
+
+    // Generate and save embedding in the background
+    generateAndSaveTicketEmbedding(ticket.id, subject, body);
     
     // Notify all agents and admins about new ticket
     const agentsAndAdmins = await prisma.user.findMany({
@@ -328,6 +332,33 @@ router.post('/', async (req: Request, res: Response) => {
   } catch (err: any) {
     console.error('Error creating ticket:', err);
     res.status(500).json({ error: 'Failed to create ticket' });
+  }
+});
+
+// GET similar tickets using vector embeddings
+router.get('/:id/similar', async (req: Request, res: Response) => {
+  try {
+    const { id } = req.params;
+
+    // We use a raw query because Prisma's native operations don't fully support all vector math functions yet
+    // The <=> operator in pgvector calculates cosine distance. Order by distance ASC gets the closest vectors.
+    const similarTickets = await prisma.$queryRawUnsafe<any[]>(
+      `
+      SELECT id, subject, status, category, "aiRecommendation" as resolution_notes, (ticket_embedding <=> (SELECT ticket_embedding FROM ticket WHERE id = $1)) AS distance
+      FROM ticket
+      WHERE id != $1 
+        AND ticket_embedding IS NOT NULL
+        AND status = 'Resolved'
+      ORDER BY distance ASC
+      LIMIT 3;
+      `,
+      id
+    );
+
+    res.json(similarTickets);
+  } catch (err: any) {
+    console.error('Error fetching similar tickets:', err);
+    res.status(500).json({ error: 'Failed to fetch similar tickets' });
   }
 });
 

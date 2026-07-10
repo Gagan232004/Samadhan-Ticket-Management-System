@@ -4,12 +4,14 @@
 // Get a free hosted Postgres database in seconds: `npx create-db`
 
 generator client {
-  provider      = "prisma-client-js"
-  engineType    = "binary"
+  provider        = "prisma-client-js"
+  engineType      = "binary"
+  previewFeatures = ["postgresqlExtensions"]
 }
 
 datasource db {
-  provider = "postgresql"
+  provider   = "postgresql"
+  extensions = [vector]
 }
 
 enum TicketStatus {
@@ -134,6 +136,7 @@ model Ticket {
   aiRiskLevel       String?
   aiRiskScore       Float?
   aiRecommendation  String?   @db.Text
+  ticket_embedding  Unsupported("vector(768)")?
 
   createdAt     DateTime  @default(now())
   updatedAt     DateTime  @updatedAt

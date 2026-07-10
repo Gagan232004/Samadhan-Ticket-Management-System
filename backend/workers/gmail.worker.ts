@@ -1,6 +1,7 @@
 import imaps from 'imap-simple';
 import { simpleParser } from 'mailparser';
 import { prisma } from '../db.js';
+import { generateAndSaveTicketEmbedding } from '../embed.js';
 import { boss } from '../queue.js';
 
 export async function attachGmailWorker() {
@@ -80,6 +81,8 @@ export async function attachGmailWorker() {
         });
 
         console.log(`Created Ticket #${ticket.id} from Gmail`);
+        
+        generateAndSaveTicketEmbedding(ticket.id, subject, body);
 
         // Queue for AI classification
         await boss.send('classify-ticket', { 

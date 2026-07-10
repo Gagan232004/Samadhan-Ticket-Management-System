@@ -5,6 +5,7 @@ import type { Ticket } from '../types';
 import TicketDetail from '../components/ticket-details/TicketDetail';
 import TicketThread from '../components/ticket-details/TicketThread';
 import TicketReplyForm from '../components/ticket-details/TicketReplyForm';
+import SimilarTickets from '../components/ticket-details/SimilarTickets';
 import { toast } from 'sonner';
 import { useSession } from '../lib/auth-client';
 
@@ -181,7 +182,7 @@ export default function TicketDetails() {
       <div className="absolute top-[-10%] left-[-5%] h-[600px] w-[600px] rounded-full bg-indigo-600/10 blur-[120px] pointer-events-none" />
       <div className="absolute bottom-[-10%] right-[-5%] h-[600px] w-[600px] rounded-full bg-pink-600/5 blur-[120px] pointer-events-none" />
 
-      <div className="max-w-4xl mx-auto relative z-10">
+      <div className="max-w-6xl mx-auto relative z-10">
         <Link 
           to="/tickets" 
           className="inline-flex items-center gap-2 text-zinc-400 hover:text-indigo-400 font-medium mb-8 transition-colors group"
@@ -192,21 +193,29 @@ export default function TicketDetails() {
           Back to Tickets
         </Link>
 
-        <TicketDetail 
-          ticket={ticket} 
-          agents={agents} 
-          handleUpdate={handleUpdate} 
-          isAssigning={isAssigning} 
-        />
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+          <div className="lg:col-span-2 space-y-6">
+            <TicketDetail 
+              ticket={ticket} 
+              agents={agents} 
+              handleUpdate={handleUpdate} 
+              isAssigning={isAssigning} 
+            />
 
-        <div className="bg-zinc-900/50 backdrop-blur-xl border border-white/5 rounded-3xl shadow-2xl ring-1 ring-white/10 mt-6 p-8 md:p-10">
-          <h3 className="text-sm font-bold text-zinc-500 uppercase tracking-wider mb-6 flex items-center gap-2">
-            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"></path></svg>
-            Thread ({ticket.replies?.length || 0})
-          </h3>
+            <div className="bg-zinc-900/50 backdrop-blur-xl border border-white/5 rounded-3xl shadow-2xl ring-1 ring-white/10 p-8 md:p-10">
+              <h3 className="text-sm font-bold text-zinc-500 uppercase tracking-wider mb-6 flex items-center gap-2">
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"></path></svg>
+                Thread ({ticket.replies?.length || 0})
+              </h3>
+              
+              <TicketThread ticket={ticket} />
+              <TicketReplyForm onSubmit={handleReplySubmit} isReplying={isReplying} customerName={ticket.customerName} />
+            </div>
+          </div>
           
-          <TicketThread ticket={ticket} />
-          <TicketReplyForm onSubmit={handleReplySubmit} isReplying={isReplying} customerName={ticket.customerName} />
+          <div className="space-y-6">
+            <SimilarTickets ticketId={id!} />
+          </div>
         </div>
       </div>
     </div>
