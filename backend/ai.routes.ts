@@ -31,7 +31,7 @@ router.post('/polish', async (req: Request, res: Response) => {
     }
 
     const { text: polishedText } = await generateText({
-      model: groq('llama-3.1-70b-versatile'),
+      model: groq('llama-3.3-70b-versatile'),
       system: `You are an expert Customer Support Assistant.
 
 Your task is to rewrite and polish customer support replies while preserving their original meaning.
@@ -66,7 +66,7 @@ router.post('/summarize', async (req: Request, res: Response) => {
     }
 
     const { text: summary } = await generateText({
-      model: groq('llama-3.1-70b-versatile'),
+      model: groq('llama-3.3-70b-versatile'),
       system: `You are an expert Customer Support Analyst.
 
 Your task is to summarize a support ticket and its conversation history.

@@ -38,7 +38,7 @@ export async function attachClassifyTicketWorker() {
         });
 
         const { object } = await generateObject({
-          model: groq('llama-3.1-70b-versatile'),
+          model: groq('llama-3.3-70b-versatile'),
           schema: z.object({
             category: z.enum(['General_Questions', 'Technical_Questions', 'Refund_Request', 'Others']),
             priority: z.enum(['Critical', 'High', 'Medium', 'Low']),
