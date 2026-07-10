@@ -39,6 +39,7 @@ export async function attachClassifyTicketWorker() {
 
         const { object } = await generateObject({
           model: groq('llama-3.3-70b-versatile'),
+          mode: 'json',
           schema: z.object({
             reasoning: z.string().describe('Explain your thought process step-by-step. Does the Knowledge Base explicitly answer the core question? Does it violate any Escalation Rules?'),
             category: z.enum(['General_Questions', 'Technical_Questions', 'Refund_Request', 'Others']),

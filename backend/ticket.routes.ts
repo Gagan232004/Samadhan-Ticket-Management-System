@@ -21,6 +21,7 @@ router.get('/test-ai', async (req: Request, res: Response) => {
     const kbContent = fs.readFileSync(path.join(__dirname, 'knowledge-base.md'), 'utf-8');
     const { object } = await generateObject({
       model: groq('llama-3.3-70b-versatile'),
+      mode: 'json',
       schema: z.object({
         reasoning: z.string(),
         category: z.string(),
