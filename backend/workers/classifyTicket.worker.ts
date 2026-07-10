@@ -1,7 +1,7 @@
 import { boss } from '../queue.js';
 import { prisma } from '../db.js';
 import { generateObject } from 'ai';
-import { google } from '@ai-sdk/google';
+import { groq } from '@ai-sdk/groq';
 import { z } from 'zod';
 import fs from 'fs';
 import path from 'path';
@@ -38,7 +38,7 @@ export async function attachClassifyTicketWorker() {
         });
 
         const { object } = await generateObject({
-          model: google('gemini-3.1-flash-lite-preview'),
+          model: groq('llama-3.1-70b-versatile'),
           schema: z.object({
             category: z.enum(['General_Questions', 'Technical_Questions', 'Refund_Request', 'Others']),
             priority: z.enum(['Critical', 'High', 'Medium', 'Low']),

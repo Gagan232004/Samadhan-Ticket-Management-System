@@ -28,6 +28,7 @@
   },
   "dependencies": {
     "@ai-sdk/google": "^4.0.8",
+    "@ai-sdk/groq": "^4.0.7",
     "@ai-sdk/openai": "^4.0.8",
     "@opentelemetry/api": "^1.9.1",
     "@prisma/adapter-pg": "^7.8.0",

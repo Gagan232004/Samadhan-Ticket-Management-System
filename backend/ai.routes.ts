@@ -1,6 +1,6 @@
 import { Router, type Request, type Response } from 'express';
 import { generateText } from 'ai';
-import { google } from '@ai-sdk/google';
+import { groq } from '@ai-sdk/groq';
 import { auth } from './auth.js';
 import { fromNodeHeaders } from 'better-auth/node';
 
@@ -31,7 +31,7 @@ router.post('/polish', async (req: Request, res: Response) => {
     }
 
     const { text: polishedText } = await generateText({
-      model: google('gemini-3.1-flash-lite-preview'),
+      model: groq('llama-3.1-70b-versatile'),
       system: `You are an expert Customer Support Assistant.
 
 Your task is to rewrite and polish customer support replies while preserving their original meaning.
@@ -66,7 +66,7 @@ router.post('/summarize', async (req: Request, res: Response) => {
     }
 
     const { text: summary } = await generateText({
-      model: google('gemini-3.1-flash-lite-preview'),
+      model: groq('llama-3.1-70b-versatile'),
       system: `You are an expert Customer Support Analyst.
 
 Your task is to summarize a support ticket and its conversation history.
