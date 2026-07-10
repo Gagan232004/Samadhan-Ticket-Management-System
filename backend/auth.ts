@@ -6,6 +6,15 @@ import { prisma } from "./db.js";
 import bcrypt from 'bcryptjs';
 
 export const auth = betterAuth({
+    advanced: {
+        defaultCookieAttributes: {
+            sameSite: "none",
+            secure: true
+        },
+        crossSubDomainCookies: {
+            enabled: true
+        }
+    },
     trustedOrigins: [process.env.FRONTEND_URL || "http://localhost:5173"],
     database: prismaAdapter(prisma, {
         provider: "postgresql",
