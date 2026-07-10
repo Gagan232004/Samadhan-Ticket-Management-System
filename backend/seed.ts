@@ -72,4 +72,32 @@ export async function seed() {
             auth.options.emailAndPassword.disableSignUp = originalDisableSignUp;
         }
     }
+
+    // Seed AI Agent
+    console.log("Seeding AI Agent...");
+    const aiEmail = 'ai@samadhaan.com';
+    const existingAi = await prisma.user.findUnique({
+        where: { email: aiEmail }
+    });
+
+    if (!existingAi) {
+        // AI needs an ID for Better Auth consistency
+        const crypto = await import('crypto');
+        const id = crypto.randomUUID();
+        
+        await prisma.user.create({
+            data: {
+                id,
+                name: 'AI Agent',
+                email: aiEmail,
+                emailVerified: true,
+                role: 'agent',
+                createdAt: new Date(),
+                updatedAt: new Date()
+            }
+        });
+        console.log("AI Agent created successfully!");
+    } else {
+        console.log("AI Agent already exists.");
+    }
 }
