@@ -11,7 +11,9 @@ import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 
-import { emailSchema } from '@ticketly/core';
+const emailSchema = z.string()
+  .email({ message: "Invalid email address" })
+  .max(255, { message: "Email address is too long" });
 
 const loginSchema = z.object({
   email: emailSchema,
