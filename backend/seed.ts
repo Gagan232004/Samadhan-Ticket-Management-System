@@ -1,7 +1,7 @@
 import { auth } from "./auth.js";
 import { prisma } from "./db.js";
 
-async function seed() {
+export async function seed() {
     console.log("Starting seed process...");
 
     const email = process.env.ADMIN_EMAIL;
@@ -57,5 +57,3 @@ async function seed() {
         }
     }
 }
-
-seed().catch(console.error).finally(() => process.exit(0));

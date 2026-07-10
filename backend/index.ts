@@ -6,6 +6,7 @@ import { auth } from "./auth.js";
 import { prisma } from "./db.js";
 import { createUserSchema } from '@ticketly/core';
 import { startJobs } from './jobs.js';
+import { seed } from './seed.js';
 dotenv.config();
 
 const app = express();
@@ -176,9 +177,10 @@ app.listen(PORT, async () => {
   console.log(`📦 Shared core schema loaded successfully:`, !!createUserSchema);
   
   try {
+    await seed();
     await startJobs();
   } catch (e) {
-    console.error('Failed to start background jobs', e);
+    console.error('Failed to start background jobs or seed', e);
   }
 });
 
