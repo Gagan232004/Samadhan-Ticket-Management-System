@@ -1,8 +1,24 @@
 import { auth } from "./auth.js";
 import { prisma } from "./db.js";
+import fs from "fs";
+import path from "path";
+import { fileURLToPath } from "url";
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 export async function seed() {
     console.log("Starting seed process...");
+
+    // Create SQL function for stats dashboard
+    try {
+        console.log("Creating SQL functions...");
+        const sql = fs.readFileSync(path.join(__dirname, "stats.sql"), "utf-8");
+        await prisma.$executeRawUnsafe(sql);
+        console.log("SQL functions created successfully.");
+    } catch (e) {
+        console.error("Error creating SQL functions:", e);
+    }
 
     const email = process.env.ADMIN_EMAIL;
     const password = process.env.ADMIN_PASSWORD;
