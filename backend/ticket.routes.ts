@@ -9,14 +9,11 @@ import { fileURLToPath } from 'url';
 import { generateObject } from 'ai';
 import { groq } from '@ai-sdk/groq';
 import { z } from 'zod';
-import multer from 'multer';
-import { uploadFile } from './upload.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 const router = Router();
-const upload = multer({ dest: 'uploads/' });
 
 // TEMPORARY DEBUG ROUTE
 router.get('/test-ai', async (req: Request, res: Response) => {
