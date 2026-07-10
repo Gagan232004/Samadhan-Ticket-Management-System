@@ -25,6 +25,12 @@ export async function attachClassifyTicketWorker() {
       
       console.log(`Processing classify-ticket job for ticket ${ticketId}`);
       try {
+        const currentTicket = await prisma.ticket.findUnique({ where: { id: ticketId } });
+        if (!currentTicket || currentTicket.status === 'Resolved' || currentTicket.status === 'Closed') {
+          console.log(`Ticket ${ticketId} is already ${currentTicket?.status}. Skipping AI classification.`);
+          continue;
+        }
+
         // Mark as Processing
         await prisma.ticket.update({
           where: { id: ticketId },
