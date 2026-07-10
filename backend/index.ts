@@ -1,4 +1,3 @@
-import * as Sentry from "@sentry/node";
 import express, { type Request, type Response, type NextFunction } from 'express';
 import cors from 'cors';
 import dotenv from 'dotenv';
@@ -9,16 +8,6 @@ import { createUserSchema } from '@ticketly/core';
 import { startJobs } from './jobs.js';
 dotenv.config();
 
-// Ensure Sentry is initialized as early as possible
-if (process.env.SENTRY_DSN) {
-  Sentry.init({
-    dsn: process.env.SENTRY_DSN,
-    environment: process.env.SENTRY_ENVIRONMENT || process.env.VITE_SENTRY_ENVIRONMENT || "development",
-    integrations: [],
-    // Tracing
-    tracesSampleRate: 1.0, //  Capture 100% of the transactions
-  });
-}
 const app = express();
 const PORT = process.env.PORT || 5000;
 
@@ -175,7 +164,6 @@ app.delete('/api/users/:id', async (req: Request, res: Response) => {
 });
 
 // Global Error Handler
-Sentry.setupExpressErrorHandler(app);
 
 app.use((err: any, req: Request, res: Response, next: NextFunction) => {
   console.error(err.stack);
