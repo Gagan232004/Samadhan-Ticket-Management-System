@@ -27,8 +27,9 @@ export async function attachGmailWorker() {
       }
     };
 
+    let connection;
     try {
-      const connection = await imaps.connect(config);
+      connection = await imaps.connect(config);
       await connection.openBox('INBOX');
 
       // Search for unread emails
@@ -89,9 +90,12 @@ export async function attachGmailWorker() {
         });
       }
 
-      connection.end();
     } catch (err) {
       console.error('Error syncing Gmail:', err);
+    } finally {
+      if (connection) {
+        try { connection.end(); } catch(e) {}
+      }
     }
   });
 }
