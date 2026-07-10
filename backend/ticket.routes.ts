@@ -3,8 +3,63 @@ import { prisma } from './db.js';
 import { auth } from './auth.js';
 import { fromNodeHeaders } from 'better-auth/node';
 import { boss } from './queue.js';
+import fs from 'fs';
+import path from 'path';
+import { fileURLToPath } from 'url';
+import { generateObject } from 'ai';
+import { groq } from '@ai-sdk/groq';
+import { z } from 'zod';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 const router = Router();
+
+// TEMPORARY DEBUG ROUTE
+router.get('/test-ai', async (req: Request, res: Response) => {
+  try {
+    const kbContent = fs.readFileSync(path.join(__dirname, 'knowledge-base.md'), 'utf-8');
+    const { object } = await generateObject({
+      model: groq('llama-3.3-70b-versatile'),
+      schema: z.object({
+        reasoning: z.string(),
+        category: z.string(),
+        priority: z.string(),
+        canResolve: z.boolean(),
+        resolutionText: z.string().optional()
+      }),
+      prompt: `You are an AI support agent.
+Read the following Knowledge Base carefully and determine if the user's ticket can be fully resolved.
+Also classify the ticket into a category and determine its priority.
+
+Knowledge Base:
+"""
+${kbContent}
+"""
+
+Ticket Subject: Going on a flight - need downloads
+Ticket Body: I'm going to be on an airplane for 12 hours tomorrow. is it possible for me to download the video lectures to watch them offline? I already downloaded the source code.
+Customer Name: Test
+
+Allowed Categories: General_Questions, Technical_Questions, Refund_Request, Others
+Allowed Priorities: Critical, High, Medium, Low
+
+Rules for auto-resolution:
+1. STRICT GROUNDING: You MUST ONLY use the provided Knowledge Base to answer the question. Ignore extra context provided by the user (e.g. going on a flight, personal stories) as long as their core question is answered in the KB.
+2. DO NOT use external knowledge. DO NOT guess. DO NOT hallucinate.
+3. If the answer to the core question is NOT explicitly stated in the Knowledge Base, you MUST set canResolve to false.
+4. Follow the Escalation Rules from the Knowledge Base (e.g. do NOT resolve if user threatens legal action, disputes a charge).
+5. If you can confidently answer the core question using ONLY the Knowledge Base, set canResolve=true and provide the resolutionText. 
+6. The resolutionText MUST address the customer by their first name at the beginning.
+7. The resolutionText MUST be signed at the very end with 'Best regards, Samadhaan Support'.
+8. Ensure the reply has a professional and customer-friendly tone, and is properly formatted.
+9. Do NOT use Markdown formatting such as asterisks (**) for bolding. Output plain text only, but DO use newlines to separate paragraphs and the signature.`
+    });
+    res.json(object);
+  } catch (err: any) {
+    res.status(500).json({ error: err.message, stack: err.stack });
+  }
+});
 
 // Middleware to check authentication for all ticket routes
 router.use(async (req: Request, res: Response, next) => {
