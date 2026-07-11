@@ -20,6 +20,15 @@ const router = express.Router();
 // TEMP DEV ENDPOINT: Trigger backfill of embeddings
 router.get('/dev/backfill', async (req: Request, res: Response) => {
   try {
+    // Force create the vector extension and column just in case prisma db push failed to do it
+    await prisma.$executeRawUnsafe(`CREATE EXTENSION IF NOT EXISTS vector`);
+    
+    try {
+      await prisma.$executeRawUnsafe(`ALTER TABLE ticket ADD COLUMN IF NOT EXISTS ticket_embedding vector(768)`);
+    } catch (e) {
+      console.log("Column might already exist or error:", e);
+    }
+
     const ticketsWithoutEmbeddings = await prisma.$queryRawUnsafe<any[]>(`
       SELECT id, subject, body 
       FROM ticket 
