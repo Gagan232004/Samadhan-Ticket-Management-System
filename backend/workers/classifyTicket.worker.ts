@@ -38,7 +38,7 @@ export async function attachClassifyTicketWorker() {
         });
 
         const { object } = await generateObject({
-          model: google('gemini-3.1-flash-live-preview'),
+          model: google('gemini-1.5-flash'),
           schema: z.object({
             reasoning: z.string().describe('Explain your thought process step-by-step. Does the Knowledge Base explicitly answer the core question? Does it violate any Escalation Rules?'),
             category: z.enum(['General_Questions', 'Technical_Questions', 'Refund_Request', 'Others']),
