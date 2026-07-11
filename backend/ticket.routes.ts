@@ -10,11 +10,38 @@ import { generateObject } from 'ai';
 import { groq } from '@ai-sdk/groq';
 import { z } from 'zod';
 import { generateAndSaveTicketEmbedding } from './embed.js';
+import express from 'express';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-const router = Router();
+const router = express.Router();
+
+// TEMP DEV ENDPOINT: Trigger backfill of embeddings
+router.get('/dev/backfill', async (req: Request, res: Response) => {
+  try {
+    const ticketsWithoutEmbeddings = await prisma.$queryRawUnsafe<any[]>(`
+      SELECT id, subject, body 
+      FROM ticket 
+      WHERE ticket_embedding IS NULL
+    `);
+
+    // We process them asynchronously and return immediately to avoid Vercel/Railway timeout
+    res.json({ message: `Backfill started for ${ticketsWithoutEmbeddings.length} tickets.` });
+
+    for (let i = 0; i < ticketsWithoutEmbeddings.length; i++) {
+      const ticket = ticketsWithoutEmbeddings[i];
+      try {
+        await generateAndSaveTicketEmbedding(ticket.id, ticket.subject, ticket.body || '');
+        await new Promise(resolve => setTimeout(resolve, 500));
+      } catch (err) {
+        console.error(`Failed to process ticket ${ticket.id}`, err);
+      }
+    }
+  } catch (err: any) {
+    res.status(500).json({ error: err.message });
+  }
+});
 
 // TEMPORARY DEBUG ROUTE
 router.get('/test-ai', async (req: Request, res: Response) => {
