@@ -133,6 +133,15 @@ export default function Tickets() {
     columnHelper.accessor('priority', {
       header: 'Priority',
       cell: info => {
+        const status = info.row.original.status;
+        if (status === 'Resolved' || status === 'Closed') {
+          return (
+            <span className="text-xs font-bold uppercase tracking-wider px-2.5 py-1 rounded-md border whitespace-nowrap text-zinc-500 bg-zinc-800/30 border-white/5">
+              Closed
+            </span>
+          );
+        }
+
         const priority = info.getValue();
         if (!priority) return <span className="text-zinc-500">-</span>;
         
