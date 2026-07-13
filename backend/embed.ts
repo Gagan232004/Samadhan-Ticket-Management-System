@@ -6,10 +6,15 @@ export async function generateAndSaveTicketEmbedding(ticketId: string, subject: 
   try {
     const textToEmbed = `Title: ${subject}\n\nDescription: ${body}`;
     
-    // We use gemini-1.5-flash for everything else, but for embeddings google provides text-embedding-004
+    // Update to gemini-embedding-001 with output dimensionality 768 to match pgvector
     const { embedding } = await embed({
-      model: google.textEmbeddingModel('text-embedding-004'),
+      model: google.embedding('gemini-embedding-001'),
       value: textToEmbed,
+      providerOptions: {
+        google: {
+          outputDimensionality: 768,
+        },
+      },
     });
 
     // Update the ticket record in the DB with the embedding using raw SQL
