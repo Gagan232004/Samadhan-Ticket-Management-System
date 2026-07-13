@@ -31,7 +31,7 @@ router.post('/polish', async (req: Request, res: Response) => {
     }
 
     const { text: polishedText } = await generateText({
-      model: google('gemini-2.5-flash'),
+      model: google('gemini-3.1-flash-lite'),
       system: `You are an expert Customer Support Assistant.
 
 Your task is to rewrite and polish customer support replies while preserving their original meaning.
@@ -66,7 +66,7 @@ router.post('/summarize', async (req: Request, res: Response) => {
     }
 
     const { text: summary } = await generateText({
-      model: google('gemini-2.5-flash'),
+      model: google('gemini-3.1-flash-lite'),
       system: `You are an expert Customer Support Analyst.
 
 Your task is to summarize a support ticket and its conversation history.
