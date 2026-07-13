@@ -8,6 +8,8 @@ interface SimilarTicket {
   category: string;
   resolution_notes: string;
   distance: number;
+  last_agent_reply?: string;
+  resolved_by?: string;
 }
 
 interface SimilarTicketsProps {
@@ -70,13 +72,25 @@ export default function SimilarTickets({ ticketId }: SimilarTicketsProps) {
             <Link to={`/tickets/${st.id}`} className="font-medium text-white hover:text-indigo-400 transition-colors line-clamp-1">
               {st.subject}
             </Link>
-            {st.resolution_notes && (
+            {st.last_agent_reply ? (
+              <div className="mt-3 bg-zinc-900/50 rounded-lg p-3 border border-white/5">
+                <p className="text-xs font-semibold text-indigo-400 mb-1 flex items-center gap-1">
+                  <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7"></path></svg>
+                  Solution by {st.resolved_by || 'Agent'}
+                </p>
+                <p className="text-sm text-zinc-300 line-clamp-3">
+                  {st.last_agent_reply}
+                </p>
+              </div>
+            ) : st.resolution_notes ? (
               <p className="text-sm text-zinc-400 mt-2 line-clamp-2 italic">
                 "{st.resolution_notes}"
               </p>
-            )}
-            <div className="flex items-center gap-2 mt-3 text-xs font-mono text-indigo-300 bg-indigo-500/10 px-2 py-1 rounded-md w-max">
-              Match: {((1 - st.distance) * 100).toFixed(1)}%
+            ) : null}
+            <div className="flex items-center justify-between mt-3">
+              <div className="flex items-center gap-2 text-xs font-mono text-indigo-300 bg-indigo-500/10 px-2 py-1 rounded-md w-max">
+                Match: {((1 - st.distance) * 100).toFixed(1)}%
+              </div>
             </div>
           </div>
         ))}
