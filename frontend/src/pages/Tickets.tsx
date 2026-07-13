@@ -212,12 +212,22 @@ export default function Tickets() {
             <h1 className="text-4xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-white via-indigo-100 to-indigo-300 mb-2 drop-shadow-sm">Tickets</h1>
             <p className="text-zinc-400 font-medium tracking-wide">Manage support requests</p>
           </div>
-          <button 
-            onClick={handleCreate}
-            className="group relative px-6 py-2.5 font-bold text-white rounded-lg bg-indigo-500 hover:bg-indigo-400 transition-all shadow-[0_0_20px_rgba(99,102,241,0.3)] hover:shadow-[0_0_30px_rgba(99,102,241,0.5)] active:scale-95"
-          >
-            Create Ticket
-          </button>
+          <div className="flex items-center gap-3">
+            <button 
+              onClick={fetchTickets}
+              disabled={loading}
+              className="group flex items-center justify-center p-2.5 text-zinc-300 hover:text-white bg-white/5 hover:bg-white/10 border border-white/10 rounded-lg transition-all active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed"
+              title="Refresh tickets"
+            >
+              <svg className={`w-5 h-5 ${loading ? 'animate-spin' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path></svg>
+            </button>
+            <button 
+              onClick={handleCreate}
+              className="group relative px-6 py-2.5 font-bold text-white rounded-lg bg-indigo-500 hover:bg-indigo-400 transition-all shadow-[0_0_20px_rgba(99,102,241,0.3)] hover:shadow-[0_0_30px_rgba(99,102,241,0.5)] active:scale-95"
+            >
+              Create Ticket
+            </button>
+          </div>
         </div>
 
         {error && (
