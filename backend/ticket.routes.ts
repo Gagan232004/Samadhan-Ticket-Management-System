@@ -380,11 +380,19 @@ router.get('/:id/similar', async (req: Request, res: Response) => {
     // The <=> operator in pgvector calculates cosine distance. Order by distance ASC gets the closest vectors.
     const similarTickets = await prisma.$queryRawUnsafe<any[]>(
       `
-      SELECT id, subject, status, category, "aiRecommendation" as resolution_notes, (ticket_embedding <=> (SELECT ticket_embedding FROM ticket WHERE id = $1)) AS distance
+      SELECT 
+        ticket.id, 
+        ticket.subject, 
+        ticket.status, 
+        ticket.category, 
+        ticket."aiRecommendation" as resolution_notes, 
+        (ticket.ticket_embedding <=> (SELECT ticket_embedding FROM ticket WHERE id = $1)) AS distance,
+        (SELECT body FROM ticket_reply WHERE "ticketId" = ticket.id AND "senderType" = 'AGENT'::"SenderType" ORDER BY "createdAt" DESC LIMIT 1) AS last_agent_reply,
+        (SELECT u.name FROM ticket_reply tr JOIN "user" u ON tr."userId" = u.id WHERE tr."ticketId" = ticket.id AND tr."senderType" = 'AGENT'::"SenderType" ORDER BY tr."createdAt" DESC LIMIT 1) AS resolved_by
       FROM ticket
-      WHERE id != $1 
-        AND ticket_embedding IS NOT NULL
-        AND status = 'Resolved'
+      WHERE ticket.id != $1 
+        AND ticket.ticket_embedding IS NOT NULL
+        AND ticket.status = 'Resolved'
       ORDER BY distance ASC
       LIMIT 3;
       `,
