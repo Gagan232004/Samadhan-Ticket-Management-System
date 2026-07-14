@@ -150,10 +150,10 @@ export default function TicketDetails() {
 
   if (loading) {
     return (
-      <div className="min-h-[calc(100vh-80px)] bg-slate-50 flex items-center justify-center">
+      <div className="min-h-[calc(100vh-80px)] bg-zinc-950 flex items-center justify-center">
         <div className="animate-pulse flex flex-col items-center">
           <div className="h-12 w-12 border-4 border-indigo-500 border-t-transparent rounded-full animate-spin mb-4"></div>
-          <p className="text-slate-400 font-medium tracking-wide">Loading ticket details...</p>
+          <p className="text-zinc-500 font-medium tracking-wide">Loading ticket details...</p>
         </div>
       </div>
     );
@@ -161,13 +161,13 @@ export default function TicketDetails() {
 
   if (error || !ticket) {
     return (
-      <div className="min-h-[calc(100vh-80px)] bg-slate-50 flex flex-col items-center justify-center p-8">
+      <div className="min-h-[calc(100vh-80px)] bg-zinc-950 flex flex-col items-center justify-center p-8">
         <div className="bg-red-500/10 border border-red-500/20 rounded-2xl p-8 max-w-md text-center">
-          <h2 className="text-2xl font-bold text-red-600 mb-2">Oops!</h2>
+          <h2 className="text-2xl font-bold text-red-400 mb-2">Oops!</h2>
           <p className="text-red-300 mb-6">{error || 'Something went wrong.'}</p>
           <button 
             onClick={() => navigate('/tickets')}
-            className="px-6 py-2 bg-white hover:bg-slate-100 text-slate-700 rounded-lg transition-colors border border-slate-100"
+            className="px-6 py-2 bg-zinc-900 hover:bg-zinc-800 text-zinc-300 rounded-lg transition-colors border border-white/5"
           >
             Go Back
           </button>
@@ -177,7 +177,7 @@ export default function TicketDetails() {
   }
 
   return (
-    <div className="min-h-[calc(100vh-80px)] bg-slate-50 px-4 py-10 relative overflow-hidden">
+    <div className="min-h-[calc(100vh-80px)] bg-zinc-950 px-4 py-10 relative overflow-hidden">
       {/* Background gradients */}
       <div className="absolute top-[-10%] left-[-5%] h-[600px] w-[600px] rounded-full bg-indigo-600/10 blur-[120px] pointer-events-none" />
       <div className="absolute bottom-[-10%] right-[-5%] h-[600px] w-[600px] rounded-full bg-pink-600/5 blur-[120px] pointer-events-none" />
@@ -185,7 +185,7 @@ export default function TicketDetails() {
       <div className="max-w-6xl mx-auto relative z-10">
         <Link 
           to="/tickets" 
-          className="inline-flex items-center gap-2 text-slate-500 hover:text-indigo-600 font-medium mb-8 transition-colors group"
+          className="inline-flex items-center gap-2 text-zinc-400 hover:text-indigo-400 font-medium mb-8 transition-colors group"
         >
           <svg className="w-5 h-5 group-hover:-translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path>
@@ -202,8 +202,8 @@ export default function TicketDetails() {
               isAssigning={isAssigning} 
             />
 
-            <div className="bg-white backdrop-blur-xl border border-slate-100 rounded-3xl shadow-2xl ring-1 ring-slate-100 p-8 md:p-10">
-              <h3 className="text-sm font-bold text-slate-400 uppercase tracking-wider mb-6 flex items-center gap-2">
+            <div className="bg-zinc-900/50 backdrop-blur-xl border border-white/5 rounded-3xl shadow-2xl ring-1 ring-white/10 p-8 md:p-10">
+              <h3 className="text-sm font-bold text-zinc-500 uppercase tracking-wider mb-6 flex items-center gap-2">
                 <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"></path></svg>
                 Thread ({ticket.replies?.length || 0})
               </h3>

@@ -40,7 +40,7 @@ export default function Users() {
   });
 
   return (
-    <div className="relative min-h-[calc(100vh-4rem)] w-full overflow-hidden bg-slate-50">
+    <div className="relative min-h-[calc(100vh-4rem)] w-full overflow-hidden bg-zinc-950">
       {/* Premium Decorative Background */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
         <div className="absolute -top-[20%] -left-[10%] w-[50vw] h-[50vw] rounded-full bg-indigo-600/10 blur-[120px]" />
@@ -55,13 +55,13 @@ export default function Users() {
           <h1 className="text-4xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-indigo-400 via-purple-400 to-pink-400 mb-2">
             User Management
           </h1>
-          <p className="text-slate-700 text-sm font-medium">
+          <p className="text-zinc-300 text-sm font-medium">
             Manage your team members and customer accounts
           </p>
         </div>
         <button
           onClick={() => setIsCreateModalOpen(true)}
-          className="flex items-center gap-2 px-5 py-2.5 bg-indigo-600 hover:bg-indigo-500 text-slate-900 font-semibold rounded-xl shadow-lg shadow-indigo-500/20 transition-all hover:scale-105 active:scale-95"
+          className="flex items-center gap-2 px-5 py-2.5 bg-indigo-600 hover:bg-indigo-500 text-white font-semibold rounded-xl shadow-lg shadow-indigo-500/20 transition-all hover:scale-105 active:scale-95"
         >
           <Plus size={18} />
           Create User
@@ -96,13 +96,13 @@ export default function Users() {
           queryClient.invalidateQueries({ queryKey: ['users'] });
         }}
       />
-      <div className="bg-white/80 backdrop-blur-2xl border border-slate-200 rounded-2xl p-1 overflow-hidden shadow-2xl relative">
+      <div className="bg-zinc-900/80 backdrop-blur-2xl border border-white/20 rounded-2xl p-1 overflow-hidden shadow-2xl relative">
         <div className="absolute inset-0 bg-gradient-to-br from-indigo-500/10 to-purple-500/10 pointer-events-none" />
         
         <div className="overflow-x-auto relative z-10 rounded-xl">
           <table className="w-full text-left border-collapse">
             <thead>
-              <tr className="border-b border-slate-200 bg-black/40 text-sm uppercase tracking-wider text-zinc-100 font-bold">
+              <tr className="border-b border-white/20 bg-black/40 text-sm uppercase tracking-wider text-zinc-100 font-bold">
                 <th className="px-6 py-5 rounded-tl-xl"><div className="flex items-center gap-2"><User size={16}/> User</div></th>
                 <th className="px-6 py-5"><div className="flex items-center gap-2"><Mail size={16}/> Email</div></th>
                 <th className="px-6 py-5"><div className="flex items-center gap-2"><Shield size={16}/> Role</div></th>
@@ -114,30 +114,30 @@ export default function Users() {
             <tbody className="divide-y divide-white/10">
               {loading ? (
                 Array.from({ length: 5 }).map((_, i) => (
-                  <tr key={`skeleton-${i}`} className="animate-pulse border-b border-slate-100 last:border-0">
+                  <tr key={`skeleton-${i}`} className="animate-pulse border-b border-white/5 last:border-0">
                     <td className="px-6 py-5">
                       <div className="flex items-center gap-4">
-                        <div className="w-12 h-12 rounded-full bg-slate-200"></div>
-                        <div className="h-5 w-32 bg-slate-200 rounded"></div>
+                        <div className="w-12 h-12 rounded-full bg-white/10"></div>
+                        <div className="h-5 w-32 bg-white/10 rounded"></div>
                       </div>
                     </td>
                     <td className="px-6 py-5">
-                      <div className="h-4 w-48 bg-slate-200 rounded"></div>
+                      <div className="h-4 w-48 bg-white/10 rounded"></div>
                     </td>
                     <td className="px-6 py-5">
-                      <div className="h-6 w-16 bg-slate-200 rounded-full"></div>
+                      <div className="h-6 w-16 bg-white/10 rounded-full"></div>
                     </td>
                     <td className="px-6 py-5">
                       <div className="flex items-center gap-2">
-                        <div className="w-4 h-4 rounded-full bg-slate-200"></div>
-                        <div className="h-4 w-20 bg-slate-200 rounded"></div>
+                        <div className="w-4 h-4 rounded-full bg-white/10"></div>
+                        <div className="h-4 w-20 bg-white/10 rounded"></div>
                       </div>
                     </td>
                     <td className="px-6 py-5">
-                      <div className="h-4 w-28 bg-slate-200 rounded"></div>
+                      <div className="h-4 w-28 bg-white/10 rounded"></div>
                     </td>
                     <td className="px-6 py-5">
-                      <div className="h-8 w-8 bg-slate-200 rounded-xl ml-auto"></div>
+                      <div className="h-8 w-8 bg-white/10 rounded-xl ml-auto"></div>
                     </td>
                   </tr>
                 ))
@@ -151,7 +151,7 @@ export default function Users() {
                 </tr>
               ) : users.length === 0 ? (
                 <tr>
-                  <td colSpan={6} className="px-6 py-12 text-center text-slate-700 font-medium text-lg">
+                  <td colSpan={6} className="px-6 py-12 text-center text-zinc-300 font-medium text-lg">
                     No users found.
                   </td>
                 </tr>
@@ -164,13 +164,13 @@ export default function Users() {
                   >
                     <td className="px-6 py-5">
                       <div className="flex items-center gap-4">
-                        <div className="w-12 h-12 rounded-full bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center text-slate-900 font-bold text-lg shadow-lg ring-2 ring-black/50 group-hover:scale-110 transition-transform duration-300">
+                        <div className="w-12 h-12 rounded-full bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center text-white font-bold text-lg shadow-lg ring-2 ring-black/50 group-hover:scale-110 transition-transform duration-300">
                           {user.name.charAt(0).toUpperCase()}
                         </div>
-                        <div className="font-semibold text-zinc-100 group-hover:text-slate-900 transition-colors text-base">{user.name}</div>
+                        <div className="font-semibold text-zinc-100 group-hover:text-white transition-colors text-base">{user.name}</div>
                       </div>
                     </td>
-                    <td className="px-6 py-5 text-slate-700 font-medium group-hover:text-zinc-100 transition-colors text-sm">
+                    <td className="px-6 py-5 text-zinc-300 font-medium group-hover:text-zinc-100 transition-colors text-sm">
                       {user.email}
                     </td>
                     <td className="px-6 py-5">
@@ -179,23 +179,23 @@ export default function Users() {
                           ? 'bg-purple-500/20 text-purple-300 border-purple-500/40 shadow-purple-500/20'
                           : user.role === 'agent'
                           ? 'bg-blue-500/20 text-blue-300 border-blue-500/40 shadow-blue-500/20' 
-                          : 'bg-zinc-500/20 text-slate-700 border-zinc-500/40'
+                          : 'bg-zinc-500/20 text-zinc-300 border-zinc-500/40'
                       }`}>
                         {user.role.toUpperCase()}
                       </span>
                     </td>
                     <td className="px-6 py-5">
                       {user.emailVerified ? (
-                        <div className="flex items-center gap-1.5 text-emerald-600 font-medium text-sm">
+                        <div className="flex items-center gap-1.5 text-emerald-400 font-medium text-sm">
                           <CheckCircle2 size={16} /> Verified
                         </div>
                       ) : (
-                        <div className="flex items-center gap-1.5 text-amber-600 font-medium text-sm">
+                        <div className="flex items-center gap-1.5 text-amber-400 font-medium text-sm">
                           <XCircle size={16} /> Unverified
                         </div>
                       )}
                     </td>
-                    <td className="px-6 py-5 text-sm text-slate-500 font-medium group-hover:text-slate-800 transition-colors">
+                    <td className="px-6 py-5 text-sm text-zinc-400 font-medium group-hover:text-zinc-200 transition-colors">
                       {new Date(user.createdAt).toLocaleDateString(undefined, { 
                         year: 'numeric', 
                         month: 'long', 
@@ -206,7 +206,7 @@ export default function Users() {
                       <div className="flex justify-end gap-2">
                         <button 
                           onClick={() => setEditingUser(user)}
-                          className="p-2 hover:bg-slate-200 rounded-xl text-slate-500 hover:text-indigo-600 transition-colors"
+                          className="p-2 hover:bg-white/10 rounded-xl text-zinc-400 hover:text-indigo-400 transition-colors"
                           title="Edit User"
                         >
                           <Pencil size={18} />
@@ -217,7 +217,7 @@ export default function Users() {
                           className={`p-2 rounded-xl transition-colors ${
                             user.role === 'admin' 
                               ? 'text-zinc-600 cursor-not-allowed' 
-                              : 'text-slate-500 hover:bg-red-500/20 hover:text-red-600'
+                              : 'text-zinc-400 hover:bg-red-500/20 hover:text-red-400'
                           }`}
                           title={user.role === 'admin' ? "Admins cannot be deleted" : "Delete User"}
                         >
