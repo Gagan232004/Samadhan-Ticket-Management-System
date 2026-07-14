@@ -21,8 +21,9 @@ function App() {
       <NotificationManager />
       <Navbar />
       <Routes>
+        <Route path="/" element={<Home />} />
         <Route 
-          path="/" 
+          path="/dashboard" 
           element={
             <ProtectedRoute>
               <Dashboard />

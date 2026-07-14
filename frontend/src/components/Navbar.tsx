@@ -86,7 +86,7 @@ export default function Navbar() {
         
         <div className="py-6 flex flex-col gap-2 px-4">
           <Link 
-            to="/" 
+            to="/dashboard" 
             onClick={() => setIsSidebarOpen(false)}
             className="flex items-center gap-3 px-4 py-3.5 text-zinc-300 hover:text-white hover:bg-emerald-500/20 hover:border-emerald-500/50 border border-transparent rounded-xl transition-all font-semibold"
           >

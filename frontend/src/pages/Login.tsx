@@ -29,7 +29,7 @@ export default function Login() {
 
   useEffect(() => {
     if (session?.user) {
-      navigate('/');
+      navigate('/dashboard');
     }
   }, [session, navigate]);
 
@@ -59,7 +59,7 @@ export default function Login() {
         return;
       }
 
-      navigate('/');
+      navigate('/dashboard');
     } catch (err: any) {
       setError(err.message || 'An unexpected error occurred');
     }
