@@ -20,7 +20,7 @@ export const sendEmail = async (to: string, subject: string, text: string, html?
     from: process.env.SENDGRID_FROM_EMAIL || 'support@samadhaan.com', // Must be verified in SendGrid
     subject,
     text,
-    html: html || text,
+    html: html || text.replace(/\n/g, '<br>'),
   };
 
   try {
