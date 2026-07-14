@@ -100,4 +100,11 @@ export async function seed() {
     } else {
         console.log("AI Agent already exists.");
     }
+
+    // Verify all users
+    console.log("Setting emailVerified to true for all users...");
+    await prisma.user.updateMany({
+        data: { emailVerified: true },
+    });
+    console.log("All users verified.");
 }
