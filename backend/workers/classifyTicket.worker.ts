@@ -46,7 +46,7 @@ export async function attachClassifyTicketWorker() {
             canResolve: z.boolean().describe('Set to true ONLY if the core question is fully answered by the Knowledge Base and no escalation rules are violated.'),
             resolutionText: z.string().describe('The reply to the customer if the issue can be resolved. MUST use \\n characters to format into multiple paragraphs and separate the signature. Leave empty if canResolve is false.')
           }),
-          prompt: `You are an AI support agent.
+          prompt: `You are an AI support agent. You MUST respond in JSON format.
 Read the following Knowledge Base carefully and determine if the user's ticket can be fully resolved.
 Also classify the ticket into a category and determine its priority.
 

@@ -31,7 +31,7 @@ export async function attachSlaMonitorWorker() {
             aiRiskScore: z.number().min(0).max(100).describe('Confidence score from 0 to 100.'),
             aiRecommendation: z.string().describe('A smart recommendation for the agent.')
           }),
-          prompt: `You are an AI Support Manager. Analyze this ticket to predict if it will breach its SLA.
+          prompt: `You are an AI Support Manager. Analyze this ticket to predict if it will breach its SLA. You MUST respond in JSON format.
 
 Ticket Data:
 - Subject: ${ticket.subject}
