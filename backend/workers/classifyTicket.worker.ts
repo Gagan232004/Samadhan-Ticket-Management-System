@@ -1,7 +1,7 @@
 import { boss } from '../queue.js';
 import { prisma } from '../db.js';
 import { generateObject } from 'ai';
-import { google } from '@ai-sdk/google';
+import { groq } from '@ai-sdk/groq';
 import { z } from 'zod';
 import fs from 'fs';
 import path from 'path';
@@ -38,7 +38,7 @@ export async function attachClassifyTicketWorker() {
         });
 
         const { object } = await generateObject({
-          model: google('gemini-3.1-flash-lite'),
+          model: groq('llama-3.3-70b-versatile'),
           schema: z.object({
             reasoning: z.string().describe('Explain your thought process step-by-step. Does the Knowledge Base explicitly answer the core question? Does it violate any Escalation Rules?'),
             category: z.enum(['General_Questions', 'Technical_Questions', 'Refund_Request', 'Others']),
