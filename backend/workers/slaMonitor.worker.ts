@@ -1,7 +1,7 @@
 import { boss } from '../queue.js';
 import { prisma } from '../db.js';
 import { generateObject } from 'ai';
-import { groq } from '@ai-sdk/groq';
+import { google } from '@ai-sdk/google';
 import { z } from 'zod';
 
 export async function attachSlaMonitorWorker() {
@@ -25,7 +25,7 @@ export async function attachSlaMonitorWorker() {
         
         // Predict SLA breach risk
         const { object } = await generateObject({
-          model: groq('llama-3.3-70b-versatile'),
+          model: google('gemini-3.1-flash-lite'),
           schema: z.object({
             aiRiskLevel: z.enum(['Low', 'Medium', 'High']).describe('Risk level of breaching the SLA.'),
             aiRiskScore: z.number().min(0).max(100).describe('Confidence score from 0 to 100.'),
