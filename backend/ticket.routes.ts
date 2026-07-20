@@ -249,15 +249,42 @@ router.get('/stats/dashboard', async (req: Request, res: Response) => {
     const percentageAiResolved = totalTickets > 0 ? (aiResolvedTickets / totalTickets) * 100 : 0;
     const slaComplianceRate = totalResolvedWithSla > 0 ? (slaMet / totalResolvedWithSla) * 100 : 100;
 
-    const chartData = Array.from({ length: 7 }).map((_, i) => {
-      const d = new Date();
-      d.setDate(d.getDate() - (6 - i));
-      return {
-        date: d.toLocaleDateString('en-US', { weekday: 'short' }),
-        aiResolved: Math.floor(Math.random() * 50) + 10,
-        humanResolved: Math.floor(Math.random() * 30) + 5
-      };
+    const sevenDaysAgo = new Date();
+    sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 6);
+    sevenDaysAgo.setHours(0, 0, 0, 0);
+
+    const recentResolvedTickets = await prisma.ticket.findMany({
+      where: {
+        status: 'Resolved',
+        updatedAt: { gte: sevenDaysAgo }
+      },
+      select: {
+        updatedAt: true,
+        assignedToId: true
+      }
     });
+
+    const chartDataMap = new Map();
+    for (let i = 6; i >= 0; i--) {
+      const d = new Date();
+      d.setDate(d.getDate() - i);
+      const dateStr = d.toLocaleDateString('en-US', { weekday: 'short' });
+      chartDataMap.set(dateStr, { date: dateStr, aiResolved: 0, humanResolved: 0 });
+    }
+
+    recentResolvedTickets.forEach(t => {
+      const dateStr = t.updatedAt.toLocaleDateString('en-US', { weekday: 'short' });
+      if (chartDataMap.has(dateStr)) {
+        const entry = chartDataMap.get(dateStr);
+        if (t.assignedToId) {
+          entry.humanResolved += 1;
+        } else {
+          entry.aiResolved += 1;
+        }
+      }
+    });
+
+    const chartData = Array.from(chartDataMap.values());
 
     const sentimentData = [
       { name: 'On Track', value: Math.max(0, openTickets - slaNearBreach - slaBreached) || 10, color: '#10b981' },
