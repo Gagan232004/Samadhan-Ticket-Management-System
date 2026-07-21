@@ -18,6 +18,12 @@ interface DashboardStats {
   slaNearBreach: number;
   slaBreached: number;
   slaComplianceRate: number;
+  categoryPercentages: {
+    General_Questions: number;
+    Technical_Questions: number;
+    Refund_Request: number;
+    Others: number;
+  };
 }
 
 export default function Dashboard() {
@@ -149,6 +155,26 @@ export default function Dashboard() {
             </div>
             <p className="text-3xl font-black text-white mb-2 tracking-tight drop-shadow-sm relative z-10">{formatDuration(stats.avgResolutionTimeMs)}</p>
             <p className="text-sm text-pink-400/80 font-medium relative z-10">Avg Resolution Time</p>
+          </div>
+        </div>
+
+        {/* Category Breakdown */}
+        <div className="mt-6 grid grid-cols-2 md:grid-cols-4 gap-4">
+          <div className="bg-zinc-900/40 backdrop-blur-xl border border-white/[0.08] rounded-2xl p-5 shadow-lg flex flex-col items-center justify-center text-center">
+            <span className="text-[10px] font-bold uppercase tracking-wider text-blue-400 mb-2">General</span>
+            <span className="text-3xl font-black text-white">{stats.categoryPercentages?.General_Questions || 0}%</span>
+          </div>
+          <div className="bg-zinc-900/40 backdrop-blur-xl border border-white/[0.08] rounded-2xl p-5 shadow-lg flex flex-col items-center justify-center text-center">
+            <span className="text-[10px] font-bold uppercase tracking-wider text-purple-400 mb-2">Technical</span>
+            <span className="text-3xl font-black text-white">{stats.categoryPercentages?.Technical_Questions || 0}%</span>
+          </div>
+          <div className="bg-zinc-900/40 backdrop-blur-xl border border-white/[0.08] rounded-2xl p-5 shadow-lg flex flex-col items-center justify-center text-center">
+            <span className="text-[10px] font-bold uppercase tracking-wider text-rose-400 mb-2">Refunds</span>
+            <span className="text-3xl font-black text-white">{stats.categoryPercentages?.Refund_Request || 0}%</span>
+          </div>
+          <div className="bg-zinc-900/40 backdrop-blur-xl border border-white/[0.08] rounded-2xl p-5 shadow-lg flex flex-col items-center justify-center text-center">
+            <span className="text-[10px] font-bold uppercase tracking-wider text-zinc-400 mb-2">Others</span>
+            <span className="text-3xl font-black text-white">{stats.categoryPercentages?.Others || 0}%</span>
           </div>
         </div>
 

@@ -249,6 +249,30 @@ router.get('/stats/dashboard', async (req: Request, res: Response) => {
     const percentageAiResolved = totalTickets > 0 ? (aiResolvedTickets / totalTickets) * 100 : 0;
     const slaComplianceRate = totalResolvedWithSla > 0 ? (slaMet / totalResolvedWithSla) * 100 : 100;
 
+    const categoryGroup = await prisma.ticket.groupBy({
+      by: ['category'],
+      _count: { _all: true }
+    });
+
+    const categoryStats: Record<string, number> = {
+      General_Questions: 0,
+      Technical_Questions: 0,
+      Refund_Request: 0,
+      Others: 0
+    };
+    categoryGroup.forEach((c: any) => {
+      if (categoryStats[c.category] !== undefined) {
+        categoryStats[c.category] = c._count._all;
+      }
+    });
+
+    const categoryPercentages = {
+      General_Questions: totalTickets > 0 ? parseFloat(((categoryStats.General_Questions / totalTickets) * 100).toFixed(1)) : 0,
+      Technical_Questions: totalTickets > 0 ? parseFloat(((categoryStats.Technical_Questions / totalTickets) * 100).toFixed(1)) : 0,
+      Refund_Request: totalTickets > 0 ? parseFloat(((categoryStats.Refund_Request / totalTickets) * 100).toFixed(1)) : 0,
+      Others: totalTickets > 0 ? parseFloat(((categoryStats.Others / totalTickets) * 100).toFixed(1)) : 0,
+    };
+
     const sevenDaysAgo = new Date();
     sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 6);
     sevenDaysAgo.setHours(0, 0, 0, 0);
@@ -310,7 +334,10 @@ router.get('/stats/dashboard', async (req: Request, res: Response) => {
       // SLA additions
       slaNearBreach,
       slaBreached,
-      slaComplianceRate: parseFloat(slaComplianceRate.toFixed(2))
+      slaComplianceRate: parseFloat(slaComplianceRate.toFixed(2)),
+      
+      // Category Breakdown
+      categoryPercentages
     });
   } catch (err: any) {
     console.error('Error fetching dashboard stats:', err);
