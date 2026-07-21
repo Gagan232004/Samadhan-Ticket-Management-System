@@ -118,7 +118,7 @@ router.use(async (req: Request, res: Response, next) => {
 // GET all tickets
 router.get('/', async (req: Request, res: Response) => {
   try {
-    const { sortBy, order, search, status, category, priority, page, limit } = req.query;
+    const { sortBy, order, search, status, category, priority, resolvedBy, page, limit } = req.query;
 
     const validSortFields = ['subject', 'customerName', 'status', 'category', 'createdAt', 'priority', 'slaDeadline'];
     const sortField = validSortFields.includes(sortBy as string) ? (sortBy as string) : 'createdAt';
@@ -146,6 +146,16 @@ router.get('/', async (req: Request, res: Response) => {
     }
     if (priority && priority !== 'All') {
       where.priority = priority;
+    }
+    
+    if (resolvedBy && resolvedBy !== 'All') {
+      if (resolvedBy === 'AI') {
+        where.assignedToId = null;
+        where.status = 'Resolved';
+      } else {
+        where.assignedToId = resolvedBy;
+        // Optionally force status to Resolved, but leaving it open allows filtering assigned tickets too
+      }
     }
 
     const user = (req as any).user;

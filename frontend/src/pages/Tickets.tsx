@@ -22,6 +22,7 @@ export default function Tickets() {
   const [error, setError] = useState('');
   
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [agents, setAgents] = useState<{id: string, name: string, email: string}[]>([]);
 
   // TanStack Table States
   const [sorting, setSorting] = useState<SortingState>([{ id: 'createdAt', desc: true }]);
@@ -33,6 +34,23 @@ export default function Tickets() {
   const [statusFilter, setStatusFilter] = useState('All');
   const [categoryFilter, setCategoryFilter] = useState('All');
   const [priorityFilter, setPriorityFilter] = useState('All');
+  const [resolvedByFilter, setResolvedByFilter] = useState('All');
+
+  useEffect(() => {
+    const fetchAgents = async () => {
+      try {
+        const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:5000';
+        const response = await fetch(`${apiUrl}/api/users/agents`, { credentials: 'include' });
+        if (response.ok) {
+          const data = await response.json();
+          setAgents(data);
+        }
+      } catch (err) {
+        console.error('Failed to fetch agents:', err);
+      }
+    };
+    fetchAgents();
+  }, []);
 
   useEffect(() => {
     const handler = setTimeout(() => {
@@ -44,7 +62,7 @@ export default function Tickets() {
   // Reset to page 1 when filters change
   useEffect(() => {
     setPagination(prev => ({ ...prev, pageIndex: 0 }));
-  }, [debouncedSearch, statusFilter, categoryFilter, priorityFilter, sorting]);
+  }, [debouncedSearch, statusFilter, categoryFilter, priorityFilter, resolvedByFilter, sorting]);
 
   const fetchTickets = async () => {
     setLoading(true);
@@ -64,6 +82,7 @@ export default function Tickets() {
       if (statusFilter !== 'All') url.searchParams.set('status', statusFilter);
       if (categoryFilter !== 'All') url.searchParams.set('category', categoryFilter);
       if (priorityFilter !== 'All') url.searchParams.set('priority', priorityFilter);
+      if (resolvedByFilter !== 'All') url.searchParams.set('resolvedBy', resolvedByFilter);
 
       const response = await fetch(url.toString(), {
         credentials: 'include'
@@ -82,7 +101,7 @@ export default function Tickets() {
 
   useEffect(() => {
     fetchTickets();
-  }, [pagination.pageIndex, pagination.pageSize, sorting, debouncedSearch, statusFilter, categoryFilter, priorityFilter]);
+  }, [pagination.pageIndex, pagination.pageSize, sorting, debouncedSearch, statusFilter, categoryFilter, priorityFilter, resolvedByFilter]);
 
   const handleCreate = () => {
     setIsModalOpen(true);
@@ -257,7 +276,7 @@ export default function Tickets() {
               className="w-full pl-10 pr-4 py-2 bg-zinc-950 border border-white/10 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500/50 text-zinc-200 placeholder:text-zinc-500"
             />
           </div>
-          <div className="flex gap-4 w-full md:w-auto">
+          <div className="flex flex-wrap gap-4 w-full md:w-auto">
             <select 
               value={statusFilter}
               onChange={(e) => setStatusFilter(e.target.value)}
@@ -287,6 +306,17 @@ export default function Tickets() {
               <option value="All">All Categories</option>
               {Object.entries(CATEGORY_LABELS).map(([key, label]) => (
                 <option key={key} value={key}>{label}</option>
+              ))}
+            </select>
+            <select 
+              value={resolvedByFilter}
+              onChange={(e) => setResolvedByFilter(e.target.value)}
+              className="px-4 py-2 bg-zinc-950 border border-white/10 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500/50 text-zinc-200 appearance-none min-w-[160px]"
+            >
+              <option value="All">All Assignees</option>
+              <option value="AI">Resolved by AI</option>
+              {agents.map(agent => (
+                <option key={agent.id} value={agent.id}>{agent.name}</option>
               ))}
             </select>
           </div>
