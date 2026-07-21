@@ -595,12 +595,24 @@ router.post('/:id/replies', async (req: Request, res: Response) => {
     
     // Send email to customer if it's an agent replying and customer has an email
     if (senderType !== 'customer' && ticket.customerEmail) {
+      let finalBody = body;
+      const signature = '\n\nBest Regards,\nSamadhan Support';
+      
+      if (!finalBody.toLowerCase().includes('samadhan support') && !finalBody.toLowerCase().includes('samadhaan support')) {
+        finalBody += signature;
+      }
+
+      let finalBodyHtml = bodyHtml;
+      if (finalBodyHtml && !finalBodyHtml.toLowerCase().includes('samadhan support') && !finalBodyHtml.toLowerCase().includes('samadhaan support')) {
+        finalBodyHtml += '<br><br>Best Regards,<br>Samadhan Support';
+      }
+
       import('./email.js').then(({ sendEmail }) => {
         sendEmail(
           ticket.customerEmail!,
           `Re: ${ticket.subject}`,
-          body,
-          bodyHtml
+          finalBody,
+          finalBodyHtml
         ).catch(console.error);
       });
     }
