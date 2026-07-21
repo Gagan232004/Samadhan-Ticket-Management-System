@@ -20,10 +20,10 @@ BEGIN
     SELECT
       COUNT(*) as total_tickets,
       COUNT(*) FILTER (WHERE t.status = 'Open') as open_tickets,
-      COUNT(*) FILTER (WHERE t.status = 'Resolved' AND u.email = 'ai@samadhaan.com') as ai_resolved_tickets,
+      COUNT(*) FILTER (WHERE t.status = 'Resolved' AND t."assignedToId" IS NULL) as ai_resolved_tickets,
       AVG(EXTRACT(EPOCH FROM (t."updatedAt" - t."createdAt")) * 1000) FILTER (WHERE t.status = 'Resolved') as avg_resolution_time_ms,
       COUNT(*) FILTER (WHERE t."createdAt" >= CURRENT_DATE) as tickets_analyzed_today,
-      COUNT(*) FILTER (WHERE t."createdAt" >= CURRENT_DATE AND t.status = 'Resolved' AND u.email = 'ai@samadhaan.com') as ai_resolved_today,
+      COUNT(*) FILTER (WHERE t."createdAt" >= CURRENT_DATE AND t.status = 'Resolved' AND t."assignedToId" IS NULL) as ai_resolved_today,
       COUNT(*) FILTER (WHERE t.status = 'Open' AND t."createdAt" < NOW() - INTERVAL '24 hours') as old_open_tickets,
       COUNT(*) FILTER (WHERE t.status = 'Open' AND t."slaDeadline" IS NOT NULL AND t."slaDeadline" > NOW() AND t."slaDeadline" <= NOW() + INTERVAL '2 hours') as sla_near_breach,
       COUNT(*) FILTER (WHERE t.status = 'Open' AND t."slaDeadline" IS NOT NULL AND t."slaDeadline" < NOW()) as sla_breached,
