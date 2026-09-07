@@ -6,6 +6,7 @@ import { prisma } from "./db.js";
 import bcrypt from 'bcryptjs';
 
 export const auth = betterAuth({
+    baseURL: process.env.BETTER_AUTH_URL || "http://localhost:5000",
     advanced: {
         defaultCookieAttributes: {
             sameSite: "none",
