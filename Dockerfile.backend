@@ -31,4 +31,4 @@ COPY backend ./
 EXPOSE 5000
 
 # Start the server
-CMD ["bun", "run", "index.ts"]
+CMD ["bun", "run", "start"]
